@@ -1,0 +1,334 @@
+\documentclass[UTF8, a4paper, 12pt]{ctexart}
+
+% 基本设置
+\usepackage[margin=1in]{geometry} % 页边距
+\usepackage{amsmath,  amssymb,  amsthm} % 数学环境
+\usepackage{enumitem} % 控制 enumerate 格式
+\usepackage{lipsum}  % 测试文字, 可以删掉
+\usepackage{float}
+\usepackage{bbm}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[american]{babel} % 保证英文单词断行按音节切割
+\usepackage{microtype} % 调整字间距, 改善排版效果
+\usepackage{fancyhdr} % 添加页眉页脚包
+
+% 设置页面样式
+\pagestyle{fancy}
+\fancyhf{} % 清除所有页眉页脚
+\fancyfoot[C]{\thepage} % 在页脚中央显示页码
+\renewcommand{\headrulewidth}{0pt} % 去掉页眉分割线
+% ...existing code...
+
+% 重新定义 subsection* 命令, 使后面段落自动缩进
+\makeatletter
+\newcommand{\subsectionstar}[1]{%
+\subsection*{#1}%
+ \setlength{\parindent}{2em}% 设置段落缩进为2em
+ \par\nobreak% 防止分页
+}
+\makeatother
+
+% 让 enumerate 的序号对齐美观
+\setlist[enumerate, 1]{label=\arabic*., leftmargin=1.5em,  labelsep=0.5em,  align=left}
+
+% 标题部分
+\title{偏微分方程数值解: 第一次作业}
+\author{林立康 \quad 25210180078}
+\date{2025年9月30日}
+
+\begin{document}
+\maketitle
+
+相关代码可从https: //github.com/LiHuaGz/Spectral\_Method.git 获取.
+\subsection*{1.(a)}
+
+将区间 $[0,  \pi]$ 划分为 $N$ 等分: $0=x_0<x_1<\cdots<x_N=\pi$, 并设步长 $h=\frac{\pi}{N}$. 二阶导数的二阶中心差分格式为: 
+\begin{equation}
+u''(x_j) \approx \frac{u(x_{j+1}) - 2u(x_j) + u(x_{j-1})}{h^2}
+\end{equation}
+
+记 $u(x_k)$ 为 $u_k$, 则该常微分方程的离散格式为: 
+\begin{equation}
+\begin{cases}
+\displaystyle -\frac{u_{k-1} - 2u_k + u_{k+1}}{h^2} + au_k = f_k,  \quad k = 1,  2,  \ldots,  N-1,  \\
+u_0 = u_N = 0
+\end{cases}
+\end{equation}
+
+整理可得: 
+\begin{equation}
+\begin{cases}
+\displaystyle -\frac{1}{h^2}u_{k-1} + \left(\frac{2}{h^2} + a\right)u_k - \frac{1}{h^2}u_{k+1} = f_k,  \quad k = 1,  2,  \ldots,  N-1,  \\
+u_0 = u_N = 0
+\end{cases}
+\end{equation}
+
+\subsection*{1.(b)}
+
+二阶导数的四阶紧致差分格式为: 
+\begin{equation}
+\label{eq: 4order1}
+\frac{1}{10}u''_{j-1} + u''_j + \frac{1}{10}u''_{j+1} = \frac{6}{5}\frac{u_{j+1} - 2u_j + u_{j-1}}{h^2}.
+\end{equation}
+
+重写给定的常微分方程, 可得: 
+\begin{equation}
+u''(x) = au(x) - f(x).
+\end{equation}
+
+因此, 
+\begin{equation}
+\label{eq: 4order2}
+\frac{1}{10}u''_{j-1} + u''_j + \frac{1}{10}u''_{j+1} = \frac{1}{10}(au_{j-1} - f_{j-1}) + (au_j - f_j) + \frac{1}{10}(au_{j+1} - f_{j+1}).
+\end{equation}
+
+结合方程 \eqref{eq: 4order1} 和 \eqref{eq: 4order2} 并整理, 可得: 
+\begin{equation}
+\begin{cases}
+\displaystyle (a-\frac{12}{h^2})u_{j-1} + (10a+\frac{24}{h^2})u_j + (a-\frac{12}{h^2})u_{j+1} = f_{j-1} + 10f_j + f_{j+1},  \quad j = 1,  2,  \ldots,  N-1, \\
+u_0 = u_N = 0.
+\end{cases}
+\end{equation}
+
+\subsection*{1.(c)}
+
+谱方法的解可以表示为: 
+\begin{equation}
+u(x) \approx u_N(x) = \sum_{k=1}^{N-1} \hat{u}_k \sin(kx).
+\end{equation}
+
+将方程投影到基函数 $\sin(jx)$ 上, 我们有: 
+\begin{equation}
+\begin{aligned}
+0 &= \langle -u''_N(x) + au_N(x) - f(x),  \sin(jx) \rangle \\
+  &= \int_{0}^{\pi} \left[ \sum_{k=1}^{N-1} \widehat{u}_k k^2 \sin(kx) + \sum_{k=1}^{N-1} a \widehat{u}_k \sin(kx) - f(x) \right] \sin(jx) dx \\
+  &= \sum_{k=1}^{N-1} \int_{0}^{\pi} (u_k k^2 + a \widehat{u}_k) \sin(kx) \sin(jx) dx - \int_{0}^{\pi} f(x) \sin(jx) dx \\
+  &= \hat{u}_j (j^2 + a) \frac{\pi}{2} - \int_{0}^{\pi} f(x) \sin(jx) dx,  \quad j = 1,  2,  \ldots,  N-1.
+\end{aligned}
+\end{equation}
+
+由此可得: 
+\begin{equation}
+\hat{u}_j = \frac{2}{\pi(j^2 + a)} \int_{0}^{\pi} f(x) \sin(jx) dx,  \quad j = 1,  2,  \ldots,  N-1.
+\end{equation}
+
+因此, 
+\begin{equation}
+u_N(x) = \sum_{k=1}^{N-1} \frac{2}{\pi(k^2 + a)} \left( \int_0^\pi f(x) \sin(kx) dx \right) \sin(kx).
+\end{equation}
+
+\subsection*{1.(d)}
+当 $a=1, f(x)=\sin(5x),  x\in [0,  \pi]$ 时, 精确解为: 
+\begin{equation}
+  u(x)=\frac{2}{52}\sin(5x),  \quad x\in [0,  \pi].
+\end{equation}
+
+当 $a=1, f(x)=e^{2x},  x\in [0,  \pi]$ 时, 精确解为: 
+\begin{equation}
+  u(x)=\frac{\frac{1}{3}e^{2\pi}-\frac{1}{2}e^{\pi}+\frac{1}{6}e^{-\pi}}{e^{\pi}-e^{-\pi}}(e^{x}-e^{-x})-\frac{1}{3}e^{2x}+\frac{1}{2}e^{x}-\frac{1}{6}e^{-x},  \quad x\in [0,  \pi].
+\end{equation}
+
+当 $a=1, f(x)=\mathbbm{1}_{[0,  \frac{\pi}{2}]}(x),  x\in [0,  \pi]$ 时, 精确解为: 
+\begin{equation}
+  u(x)=
+\begin{cases}
+\frac{1}{2}\frac{e^{\pi}-e^{\frac{\pi}{2}}+e^{-\pi}-e^{-\frac{\pi}{2}}}{e^{\pi}-e^{-\pi}}(e^{x}-e^{-x})-\frac{1}{2}e^{x}-\frac{1}{2}e^{-x}+1,  & 0 \leq x < \frac{\pi}{2},  \\
+\frac{1}{2}\frac{e^{\pi}-e^{\frac{\pi}{2}}+e^{-\pi}-e^{-\frac{\pi}{2}}}{e^{\pi}-e^{-\pi}}(e^{x}-e^{-x})+\frac{1}{2}(e^{x-\frac{\pi}{2}}+e^{x}+e^{-x+\frac{\pi}{2}}-e^{-x}),  & \frac{\pi}{2} \leq x \leq \pi.
+\end{cases}
+\end{equation}
+
+使用不同数值方法计算三种函数的误差比较如图 \ref{fig: Q1_error_f_sin_5x}、\ref{fig: Q1_error_f_exp_2x} 和 \ref{fig: Q1_error_f_indicator} 所示. 这里使用了最大误差 $||u-u_N||_{\infty} = \max_{0\leq j \leq N} |u(x_j)-u_j|$ 来衡量每种方法的精度.
+使用不同数值方法计算三种函数的收敛阶数总结在表 \ref{tab: Q1_max_error_different_methods} 中. 由于函数 $f(x)=\sin(5x)$ 具有谱精度, 因此表中省略了其收敛阶.
+
+从图 \ref{fig: Q1_error_f_sin_5x} 和 \ref{fig: Q1_error_f_indicator} 可以得出结论, 谱方法比其他两种有限差分方法收敛得更快、更稳定. 然而, 对于函数 $f(x)=e^{2x}$, 如图 \ref{fig: Q1_error_f_exp_2x} 所示, 谱方法并未显示出比四阶有限差分方法明显的优势. 这是因为函数 $f(x)=e^{2x}$ 满足 $f(0)=1$ 和 $f(\pi)=e^{2\pi}$, 而谱方法中使用的基函数 $\sin(kx)$ 满足 $\sin(k\cdot 0)=0$ 和 $\sin(k\cdot \pi)=0$, 这意味着近似解 $ u_N(x) = \sum_{k=1}^{N-1} \hat{u}_k \sin(kx)$ 必须满足 $-u''_N(0)+au_N(0)=0$ 和 $-u''_N(\pi)+au_N(\pi)=0$, 这会导致吉布斯现象 (Gibbs phenomenon). 从此例中可以得知, 谱方法中基函数的选择至关重要, 应根据目标函数的性质进行选择.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/Q1_error_f_sin_5x.png}
+  \caption{函数 $f(x)=\sin(5x)$ 的不同数值方法误差比较}
+  \label{fig: Q1_error_f_sin_5x}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/Q1_error_f_exp_2x.png}
+  \caption{函数 $f(x)=e^{2x}$ 的不同数值方法误差比较}
+  \label{fig: Q1_error_f_exp_2x}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/Q1_error_f_indicator_0_pi_over_2.png}
+  \caption{函数 $f(x)=\mathbbm{1}_{[0,  \frac{\pi}{2}]}(x)$ 的不同数值方法误差比较}
+  \label{fig: Q1_error_f_indicator}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{不同函数和数值方法的最大误差 $||u-u_N||_{\infty}$}
+  \label{tab: Q1_max_error_different_methods}
+\begin{tabular}{lccc}
+  \toprule
+函数 & 二阶有限差分 & 四阶有限差分 & 谱方法 \\
+\hline
+$f(x)=\sin(5x)$ & 2.09      & 4.13 & / \\
+$f(x)=e^{2x}$  & 2.03      & 4.08 & 2.03 \\
+$f(x)=\mathbbm{1}_{[0,  \frac{\pi}{2}]}(x)$   & 1.53      & 1.53 & 2.05 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{2.}
+$f$ 和 $I_Nf$ 之间误差的 $||\cdot||_{L^2}$ 和 $||\cdot||_{\infty}$ 范数分别如表 \ref{tab: L2_error} 和 \ref{tab: max_error} 所示. 不同函数 $f$ 及其插值 $I_Nf$ 的比较如图 \ref{fig: _frac_x__6_4_cos_x_} 至 \ref{fig: _frac_1__1_x_2__} 所示.
+
+结论是, 对于光滑函数, 傅里叶插值可以达到谱精度, 误差随着 $N$ 的增加而迅速减小. 对于具有不连续性的函数(如示性函数), 由于吉布斯现象, 收敛速度较慢. 此外, 对于具有高频分量的函数, 除非 $N$ 足够大, 否则插值可能无法精确捕捉这些分量.
+
+\begin{table}[H]
+  \centering
+  \caption{不同函数和 $N$ 值下的 $||\cdot||_{L^2}$ 误差}
+  \label{tab: L2_error}
+\begin{tabular}{lccccc}
+  \toprule
+函数 & $N=16$ & $N=32$ & $N=64$ & $N=128$ & $N=256$ \\
+\midrule
+$f(x) = \frac{x}{6+4\cos x}$ & 2.40E-01            & 1.71E-01            & 1.21E-01            & 8.57E-02             & 6.06E-02             \\
+$f(x) = \sin x$                 & 4.62E-16            & 4.61E-16            & 4.22E-16            & 4.51E-16             & 4.44E-16             \\
+$f(x) = \sin(4x)$                & 9.17E-16            & 1.57E-15            & 1.63E-15            & 1.53E-15             & 1.73E-15             \\
+$f(x) = \sin(16x)$               & 1.77E+00            & 1.77E+00            & 6.22E-15            & 4.39E-15             & 4.57E-15             \\
+$f(x) = \sin(64x)$               & 1.77E+00            & 1.77E+00            & 1.77E+00            & 1.77E+00             & 2.65E-14             \\
+$f(x) = \sin(256x)$               & 1.77E+00            & 1.77E+00            & 1.77E+00            & 1.77E+00             & 1.77E+00             \\
+$f(x) = \frac{1}{1+x^{2}}$            & 3.75E-01            & 2.65E-01            & 1.88E-01            & 1.33E-01             & 9.41E-02             \\
+$f(x) = \mathbbm{1}_{[\frac{\pi}{2},  \frac{3\pi}{2}]}(x)$ & 5.45E-01            & 3.86E-01            & 2.73E-01            & 1.93E-01             & 1.37E-01\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{不同函数和 $N$ 值下的 $||\cdot||_{\infty}$ 误差}
+  \label{tab: max_error}
+\begin{tabular}{lccccc}
+\toprule
+函数 & $N=16$ & $N=32$ & $N=64$ & $N=128$ & $N=256$ \\
+\hline
+$f(x) = \frac{x}{6+4\cos x}$ & 6.21E-01  & 6.14E-01  & 5.98E-01  & 5.64E-01   & 4.87E-01   \\
+$f(x) = \sin x$                 & 6.68E-16  & 7.24E-16  & 6.68E-16  & 7.49E-16   & 8.33E-16   \\
+$f(x) = \sin(4x)$                & 8.90E-16  & 1.72E-15  & 2.44E-15  & 2.33E-15   & 2.55E-15   \\
+$f(x) = \sin(16x)$               & 1.00E+00  & 1.00E+00  & 1.09E-14  & 1.17E-14   & 1.19E-14   \\
+$f(x) = \sin(64x)$               & 1.00E+00  & 1.00E+00  & 1.00E+00  & 1.00E+00   & 4.33E-14   \\
+$f(x) = \sin(256x)$               & 1.00E+00  & 1.00E+00  & 1.00E+00  & 1.00E+00   & 1.00E+00   \\
+$f(x) = \frac{1}{1+x^{2}}$            & 9.65E-01  & 9.53E-01  & 9.29E-01  & 8.76E-01   & 7.55E-01   \\
+$f(x) = \mathbbm{1}_{[\frac{\pi}{2},  \frac{3\pi}{2}]}(x)$ & 9.89E-01  & 9.77E-01  & 9.52E-01  & 8.98E-01   & 7.74E-01  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/_frac_x__6_4_cos_x_.png}
+  \caption{函数 $f(x)=\frac{x}{6+4\cos x}$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _frac_x__6_4_cos_x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{.//figure/_sin_x.png}
+  \caption{函数 $f(x)=\sin x$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _sin_x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{.//figure/_sin_4x_.png}
+  \caption{函数 $f(x)=\sin(4x)$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _sin_4x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{.//figure/_sin_16x_.png}
+  \caption{函数 $f(x)=\sin(16x)$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _sin_16x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/_sin_64x_.png}
+  \caption{函数 $f(x)=\sin(64x)$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _sin_64x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/_sin_256x_.png}
+  \caption{函数 $f(x)=\sin(256x)$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _sin_256x_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/_frac_1__1_x_2_.png}
+  \caption{函数 $f(x)=\frac{1}{1+x^{2}}$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _frac_1__1_x_2_}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./figure/0__0_leq_x__frac__pi__2___1___frac__pi__2__leq_x__frac_3_pi__2___0___frac_3_pi__2__leq_x_leq_2_pi.png}
+  \caption{函数 $f(x) = \mathbbm{1}_{[\frac{\pi}{2},  \frac{3\pi}{2}]}(x)$ 与其插值 $I_Nf(x)$ 的比较}
+  \label{fig: _frac_1__1_x_2__}
+\end{figure}
+
+\subsection*{3.(a)}
+对 $a_k(t)$ 关于 $t$ 求导, 可得: 
+\begin{equation}
+\begin{aligned}
+\frac{d}{dt}a_{k}(t) & =\frac{1}{2\pi}\int_{0}^{2\pi}\partial_{t}u(x, t)e^{-ikx}dx \\
+& =\frac{1}{2\pi}\int_{0}^{2\pi}\partial_{x}u(x, t)e^{-ikx}dx \\
+& =\frac{1}{2\pi}[\partial_{x}u(x, t)e^{-ikx}|_{0}^{2\pi}-\int_{0}^{2\pi}\partial_{x}u(x, t)(-ike^{-ikx})dx] \\
+& =\frac{ik}{2\pi}[u(x, t)e^{-ikx}|_{0}^{2\pi}-\int_{0}^{2\pi}u(x, t)(-ike^{-ikx})dx] \\
+& =-\frac{k^{2}}{2\pi}\int_{0}^{2\pi}u(x, t)e^{-ikx}dx \\
+& =-k^{2}a_{k}(t).
+\end{aligned}
+\end{equation}
+
+因此, $a_{k}(t) = a_{k}(0)e^{-k^{2}t}$.
+
+\subsection*{3.(b)}
+
+截断误差可以表示为: 
+\begin{equation}
+  (u-u_{N})(x, t)=\sum_{|k|\geq N}a_{k}(0)e^{-k^{2}t}e^{ikx}.
+\end{equation}
+
+由于 $a_{k} = (2\pi)^{-1}\int_{0}^{2\pi}u_{0}(x)e^{-ikx}dx$, 我们得到 $|a_{k}(0)| \leq \|u_{0}\|_{\infty}$.
+
+因此, 
+\begin{equation}
+\begin{aligned}
+  \|(u-u_N)(\cdot, t)\|_\infty & \leq\sum_{|k|\geq N}|a_k(0)|e^{-k^2t} \\
+  & \leq\|u_0\|_\infty\sum_{|k|\geq N}e^{-k^2t} \\
+  & =2\|u_0\|_\infty\sum_{k=N}^\infty e^{-k^2t}  \\
+  & \leq\int_{N-1}^\infty e^{-y^2t}dy \\
+  & \leq t^{-1/2}\int_{(N-1)\sqrt{t}}^\infty e^{-z^2}dz \\
+  & =\frac{\sqrt{\pi}}{2}t^{-1/2}\operatorname{erfc}((N-1)\sqrt{t}) \\
+  & \leq c\frac{\sqrt{\pi}}{2}t^{-1/2}\operatorname{erfc}(N\sqrt{t}).
+\end{aligned}
+\end{equation}
+其中 $c > 0$ 是一个常数.
+
+\subsection*{3.(c)}
+
+当自变量很大时, 我们有互补误差函数的渐近行为: $\mathrm{erfc}(x) \sim \frac{e^{-x^2}}{\sqrt{\pi}x}$(当 $x \to \infty$).因此, 存在一个常数 $c > 0$, 使得: 
+\begin{equation}
+  \mathrm{erfc}(N\sqrt{t}) \leq c\frac{e^{-N^2t}}{N\sqrt{t}},  \quad \text{当 } N\sqrt{t} \gg 1.
+\end{equation}
+
+使用 (b) 部分的结果, 我们得到: 
+\begin{equation}
+  \|(u-u_N)(\cdot, t)\|_\infty \leq ct^{-1}N^{-1}e^{-N^2t},  \quad \text{当 } t > 0.
+\end{equation}
+\end{document}
