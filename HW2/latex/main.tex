@@ -1,0 +1,377 @@
+\documentclass[UTF8, a4paper, 12pt]{ctexart}
+
+% 基本设置
+\usepackage[margin=1in]{geometry} % 页边距
+\usepackage{amsmath,  amssymb,  amsthm} % 数学环境
+\usepackage{enumitem} % 控制 enumerate 格式
+\usepackage{lipsum}  % 测试文字, 可以删掉
+\usepackage{float}
+\usepackage{bbm}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{url} % 支持URL链接
+\usepackage[american]{babel} % 保证英文单词断行按音节切割
+\usepackage{microtype} % 调整字间距, 改善排版效果
+\usepackage{fancyhdr} % 添加页眉页脚包
+
+% 设置页面样式
+\pagestyle{fancy}
+\fancyhf{} % 清除所有页眉页脚
+\fancyfoot[C]{\thepage} % 在页脚中央显示页码
+\renewcommand{\headrulewidth}{0pt} % 去掉页眉分割线
+
+% 重新定义 subsection* 命令, 使后面段落自动缩进
+\makeatletter
+\newcommand{\subsectionstar}[1]{%
+\subsection*{#1}%
+ \setlength{\parindent}{2em}% 设置段落缩进为2em
+ \par\nobreak% 防止分页
+}
+\makeatother
+
+% 让 enumerate 的序号对齐美观
+\setlist[enumerate, 1]{label=\arabic*., leftmargin=1.5em,  labelsep=0.5em,  align=left}
+
+% 标题部分
+\title{偏微分方程数值解: 第二次作业}
+\author{林立康 \quad 25210180078}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+相关代码可从 \url{https://github.com/LiHuaGz/Spectral_Method.git} 获取.
+\subsection*{1.(a)}
+\begin{equation*}
+  D_{N}(-x)=\frac{\sin(-(N+\frac{1}{2})x)}{\sin(-\frac{x}{2})}=\frac{\sin((N+\frac{1}{2})x)}{\sin(\frac{x}{2})}=D_{N}(x).
+\end{equation*}
+
+\begin{equation*}
+  \begin{aligned}
+  D_{N}(\frac{1}{2}+x) & =\frac{\sin((N+\frac{1}{2})(\frac{1}{2}+x))}{\sin(\frac{1}{2}(\frac{1}{2}+x))} \\
+& =\frac{\sin((N+\frac{1}{2})\cdot\frac{1}{2})\cos((N+\frac{1}{2})x)+\cos((N+\frac{1}{2})\cdot\frac{1}{2})\cdot\sin((N+\frac{1}{2})x)}{\sin(\frac{1}{2}\cdot\frac{1}{2})\cdot\cos(\frac{1}{2}x)+\cos(\frac{1}{2}\cdot\frac{1}{2})\sin(\frac{1}{2}x)} \\
+& =\frac{\sin((N+\frac{1}{2})\cdot\frac{1}{2})\cos(-(N+\frac{1}{2})x)+\cos((N+\frac{1}{2})\cdot\frac{1}{2})\cdot\sin(-(N+\frac{1}{2})x)}{\sin(\frac{1}{2}\cdot\frac{1}{2})\cdot\cos(-\frac{1}{2}x)+\cos(\frac{1}{2}\cdot\frac{1}{2})\sin(-\frac{1}{2}x)} \\
+& =D_{N}(\frac{1}{2}-x).
+\end{aligned}
+\end{equation*}
+
+\subsection*{1.(b)}
+\begin{equation*}
+  \begin{aligned}
+\int_{0}^{2\pi}D_{N}(x)dx= & \int_{0}^{2\pi}(1+2\sum_{k=1}^{N}\cos kx)dx \\
+ & =\int_{0}^{2\pi}dx+2\sum_{k=1}^{N}\int_{0}^{2\pi}\cos kx  dx \\
+ & =2\pi.
+\end{aligned}
+\end{equation*}
+
+\begin{equation*}
+  \begin{aligned}
+\int_{0}^{2\pi}D_{N}^{2}(x)dx & =\int_{0}^{2\pi}(1+2\sum_{k=1}^{N}\cos kx)^{2}dx \\
+ & =\int_{0}^{2\pi}dx+4\int_{0}^{2\pi}\sum_{k=1}^{N}\cos kxdx+4\int_{0}^{2\pi}(\sum_{k=1}^{N}\cos kx)^{2}dx \\
+ & =2\pi+4\sum_{j,k=1}^{N}\int_{0}^{2\pi}\cos jx\cdot\cos kxdx \\
+ & =2\pi+4\sum_{k=1}^{N}\int_{0}^{2\pi}\cos^{2}kx dx \\
+ & =2\pi+4\sum_{k=1}^{N}\int_{0}^{2\pi}\frac{\cos2kx+1}{2}dx \\
+ & =2\pi+4N\pi.
+\end{aligned}
+\end{equation*}
+
+因此, $$\frac{1}{2\pi}\int_{0}^{2\pi}D_{N}(x)dx=1, \quad \frac{1}{2\pi}\int_{0}^{2\pi}D_{N}^{2}(x)dx=2N+1.$$
+
+\subsection*{1.(c)}
+当$x \in [0, \pi]$时, $\sin\left(\frac{x}{2}\right)\geq\frac{2}{\pi}\cdot\frac{x}{2}=\frac{x}{\pi}$, 故
+\begin{equation*}
+  |D_N(x)|=\frac{\left|\sin((N+\frac{1}{2})x)\right|}{\sin(x/2)}\leq\frac{1}{\sin(x/2)}\leq\frac{\pi}{x}, \quad x \in (0, \pi].
+\end{equation*}
+
+可知$\int_0^{2\pi}\left|D_N(x)\right|dx=2\int_0^{\pi}\left|D_N(x)\right|dx$, 则
+\begin{equation*}
+\begin{aligned}
+\int_0^{2\pi}\left|D_N(x)\right|dx & =2\int_0^\pi\left|D_N(x)\right|dx \\
+ & \leq2\left(\int_0^{\frac{1}{2N+1}}(2N+1)dx+\int_{\frac{1}{2N+1}}^\pi\frac{\pi}{x}dx\right) \\
+ & =2\left((2N+1)\cdot\frac{1}{2N+1}+\pi\ln\frac{\pi}{\frac{1}{2N+1}}\right) \\
+ & =2\left(1+\pi\ln(2N+1)\right)  \\
+ & \leq C\ln N, \quad N \geq 2,
+\end{aligned}
+\end{equation*}
+其中$C$为常数.
+
+\subsection*{1.(d)}
+\begin{equation*}
+  \begin{aligned}
+|\phi(x)| & \leq\frac{1}{2\pi}\int_{0}^{2\pi}|\phi(t)||D_{N}(x-t)|dt \\
+&\leq\frac{1}{2\pi}(\int_{0}^{2\pi}|\phi(t)|^{2}dt)^{\frac{1}{2}}\cdot(\int_{0}^{2\pi}|D_{N}(x-t)|^{2}dt)^{\frac{1}{2}} \\
+&\leq \frac{1}{\sqrt{2\pi}}( \frac{1}{2\pi}\int_{0}^{2\pi}|\phi(t)|^{2}dt)^{\frac{1}{2}}\cdot(\int_{0}^{2\pi}|D_{N}(x-t)|^{2}dt)^{\frac{1}{2}} \\
+ & =\frac{1}{\sqrt{2\pi}}||\phi||\sqrt{2\pi(2N+1)} \\
+ & =\sqrt{2N+1}||\phi||,\quad x \in [0,2\pi].
+\end{aligned}
+\end{equation*}
+
+其中, $\int_{0}^{2\pi}|D_{N}(x-t)|^{2}dt=\int_{x-2\pi}^{x}|D_{N}(y)|^{2}dy=2\pi(2N+1)$.
+
+因此,
+\begin{equation*}
+||\phi||_{\infty}=\max_{x\in[0,2\pi]}|\phi(x)| \leq \sqrt{2N+1}||\phi||.
+\end{equation*}
+
+
+\subsection*{1.(e)}
+可知,
+
+\begin{equation*}
+  \begin{aligned}
+\sum_{N=1}^{M-1}D_{N}(x) & =\frac{1}{\sin\frac{x}{2}}\sum_{N=1}^{M-1}\sin((N+\frac{1}{2})x) \\
+ & =\frac{1}{2i\sin\frac{x}{2}}\sum_{N=1}^{M-1}(e^{i(Nx+\frac{x}{2})}-e^{-i(Nx+\frac{x}{2})}),
+ \end{aligned}
+\end{equation*}
+
+当$x \notin \pi\mathbb{Z}$时,
+\begin{equation*}
+\begin{aligned}
+\sum_{N=1}^{M-1}(e^{i(Nx+\frac{x}{2})}-e^{-i(Nx+\frac{x}{2})}) &=e^{i\frac{x}{2}}\sum_{n=1}^{M-1}e^{iNx}-e^{-i\frac{x}{2}}\sum_{n=1}^{M-1}e^{-iNx} \\
+ & = e^{i\frac{x}{2}}\cdot\frac{e^{ix}-e^{iMx}}{1-e^{ix}}-e^{-i\frac{x}{2}}\cdot\frac{e^{-ix}-e^{-iMx}}{(1-e^{-ix})} \\
+ & =\frac{e^{i\frac{x}{2}}}{1-e^{ix}}(e^{ix}-e^{iMx})+\frac{e^{i\frac{x}{2}}}{1-e^{ix}} (e^{-ix}-e^{-iMx}) \\
+ & =\frac{e^{i\frac{x}{2}}}{1-e^{ix}}[e^{ix}+e^{-ix}-(e^{iMx}+e^{-iMx})] \\
+ & =\frac{1}{e^{-i\frac{x}{2}}-e^{i\frac{x}{2}}}[e^{ix}+e^{-ix}-(e^{iMx}+e^{-iMx})] \\
+ & =\frac{1}{2i\sin(-\frac{x}{2})}(2\cos x-2\cos Mx),
+\end{aligned}
+\end{equation*}
+
+所以
+\begin{equation*}
+\begin{aligned}
+ \sum_{N=1}^{M-1}D_{N}(x) & =\frac{1}{\sin^2\frac{x}{2}}\cdot\frac{(1-2\sin^{2}\frac{x}{2})-(1-2\sin^{2}\frac{Mx}{2})}{2} \\
+ & =\frac{1}{\sin^{2}\frac{x}{2}}(-\sin^{2}\frac{x}{2}+\sin^{2}\frac{Mx}{2}) \\
+ & =-1+\frac{\sin^{2}\frac{Mx}{2}}{\sin^{2}\frac{x}{2}}.
+\end{aligned}
+\end{equation*}
+
+从而
+\begin{equation*}
+\frac{1}{M}\sum_{N=0}^{M-1}D_{N}(x) = \frac{\sin^{2}\frac{Mx}{2}}{M\sin^{2}\frac{x}{2}}, \quad x \notin \pi\mathbb{Z}.
+\end{equation*}
+
+当 $x \in \pi\mathbb{Z}$时, 结论显然也成立.
+
+\subsection*{2.(a)}
+
+(1) 理论分析
+
+易知$f(x)=e^{\sin(8x)}(-8\cos(x)\cos(8x)+64(2+\sin(x))(\sin(8x)-\cos^2(8x))+\sin^2(x))$.
+
+对$[a,b]$做划分: $a=x_0<x_1<\cdots<x_N=b$, 其中$x_k=\frac{(b-a)k}{N}+a, k=0,1,\cdots,N$. 将$u(x)$做周期延拓, 并记$v(x)=p(x)u'(x)$.  则原方程可写为:
+\begin{equation*}
+  -v'(x)+q(x)u(x)=f(x), \quad x \in (a,b),
+\end{equation*}
+且$v(a)=v(b), u(a)=u(b)$.
+
+$v'(x_k)$的二阶有限差分格式为:
+\begin{equation*}
+  v'(x_k)=\frac{v(x_k+\frac{h}{2})-v(x_k-\frac{h}{2})}{h}+O(h^2),\quad k=1,\cdots,N-1.
+\end{equation*}
+
+由于
+\begin{equation*}
+  \begin{aligned}
+  v(x_k+\frac{h}{2})&=p(x_k+\frac{h}{2})u'(x_k+\frac{h}{2}) = p(x_k+\frac{h}{2})\cdot\frac{u(x_{k+1})-u(x_k)}{h}+O(h^2),\\
+  v(x_k-\frac{h}{2})&=p(x_k-\frac{h}{2})u'(x_k-\frac{h}{2}) = p(x_k-\frac{h}{2})\cdot\frac{u(x_{k})-u(x_{k-1})}{h}+O(h^2),
+  \end{aligned}
+\end{equation*}
+故
+\begin{equation*}
+  v'(x_k) \approx \frac{p(x_k+\frac{h}{2})\cdot\frac{u(x_{k+1})-u(x_k)}{h}-p(x_k-\frac{h}{2})\cdot\frac{u(x_{k})-u(x_{k-1})}{h}}{h},\quad k=0,1,\cdots,N-1.
+\end{equation*}
+将上述格式代入原方程, 可得线性方程组:
+\begin{equation*}
+  -\frac{p(x_k+\frac{h}{2})\cdot\frac{u(x_{k+1})-u(x_k)}{h}-p(x_k-\frac{h}{2})\cdot\frac{u(x_{k})-u(x_{k-1})}{h}}{h}+q(x_k)u(x_k)=f(x_k),\quad k=0,1,\cdots,N-1.
+\end{equation*}
+
+整理得:
+\begin{equation*}
+ \left\{\begin{matrix}
+  -\frac{p_{k-\frac{1}{2}}}{h^2}u_{k-1}+\left(\frac{p_{k+\frac{1}{2}}+p_{k-\frac{1}{2}}}{h^2}+q_k\right)u_k-\frac{p_{k+\frac{1}{2}}}{h^2}u_{k+1}=f_k, \quad k=0,1,\cdots,N-1,\\
+  u_N=u_0, \quad u_{-1}=u_{N-1},
+  \end{matrix}
+ \right. 
+\end{equation*}
+其中$p_{k\pm\frac{1}{2}}=p(x_k\pm\frac{h}{2}), q_k=q(x_k), f_k=f(x_k), u_k=u(x_k)$.
+
+(2) 数值结果
+
+$h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $L^2$ 误差(斜率: 2.02)和 $H^1$ 误差(斜率: 1.94)的拟合直线斜率均非常接近2, 这表明算法的收敛阶为2, 与理论分析结果一致.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2a_FDM_Error_Analysis.png}
+  \caption{有限差分法$h$与$L^2$、$H^1$误差的关系}
+  \label{fig:Q2_FDM1}
+\end{figure}
+
+\subsection*{2.(b)}
+(1) Fourier-Galerkin谱方法
+
+记$X_N=span\left\{e^{ikx}: k=-N/2, \cdots, N/2-1\right\}, u_N=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{ikx}$, 则Fourier-Galerkin谱方法即找出$u_N \in X_N$, 使得
+\begin{equation}
+  \int_{0}^{2\pi} [- (p(x)u_N'(x))' + q(x)u_N(x) - f(x)] e^{-imx} dx = 0, \quad m=-N/2,\cdots,N/2-1.
+  \label{eq:T2_1}
+\end{equation}
+
+由于
+\begin{equation*}
+  \begin{aligned}
+    &\int_{0}^{2\pi} (p(x)u_N'(x))' e^{-imx} dx \\
+    &= p(x)u_N'(x)e^{-imx}\bigg|_{0}^{2\pi} - \int_{0}^{2\pi} p(x)u_N'(x)(-ime^{-imx}) dx \\
+    &= im\int_{0}^{2\pi} p(x)u_N'(x)e^{-imx} dx\\
+    &= im\int_{0}^{2\pi} p(x)\left(\sum_{k=-N/2}^{N/2-1}ik\tilde{u_k}e^{ikx}\right)e^{-imx} dx \\
+    &= \sum_{k=-N/2}^{N/2-1}-mk\tilde{u_k}\int_{0}^{2\pi} p(x)e^{i(k-m)x} dx, \\
+    &= \sum_{k=-N/2}^{N/2-1}-2\pi mk\tilde{u_k}\hat{p}_{m-k},
+  \end{aligned}
+\end{equation*}
+且
+\begin{equation}
+  \left\{
+    \begin{matrix}
+    \begin{aligned}
+    &\int_{0}^{2\pi} q(x)u_N(x)e^{-imx} dx = 2\pi \tilde{u}_m\hat{q}_{m},\\
+    &\int_{0}^{2\pi} f(x)e^{-imx} dx = 2\pi\hat{f}_m,
+    \end{aligned}
+    \end{matrix}
+  \right.
+  \label{eq:T2_2}
+\end{equation}
+故原问题可化为求解线性方程组:
+\begin{equation}
+  \sum_{k=-N/2}^{N/2-1}mk\hat{p}_{m-k}\tilde{u}_k+\hat{q}_{m}\tilde{u}_m=\hat{f}_m, \quad m=-N/2,\cdots,N/2-1.
+  \label{eq:T2_3}
+\end{equation}
+
+(2) Fourier-Galerkin伪谱方法
+
+事实上, 式(\ref{eq:T2_1})也即
+\begin{equation*}
+  -\widehat{(p(x)u_N'(x))'}_m + \widehat{q(x)u_N(x)}_m = \hat{f}_m,\quad m=-N/2,\cdots,N/2-1,
+\end{equation*}
+由式(\ref{eq:T2_3})可知, 这可以视为作用在$\tilde{u}=\left[\tilde{u}_{-N/2}, \cdots, \tilde{u}_{N/2-1}\right]^T$上的线性算子. 将等式左端第一项和第二项对应的线性算子分别记为$\mathcal{L}_1, \mathcal{L}_2$, 则Fourier-Galerkin伪谱方法即找出$\tilde{u}$使得
+\begin{equation}
+  \mathcal{L}_1(\tilde{u}) + \mathcal{L}_2(\tilde{u}) = \hat{f}.
+  \label{eq:T2_4}
+\end{equation}
+
+若直接使用式(\ref{eq:T2_3})左端的卷积形式计算$\mathcal{L}_1(\tilde{u})$, 则每次计算都需要$O(N^2)$的时间复杂度. 为了提高计算效率, 使用伪谱方法计算$\mathcal{L}_1(\tilde{u})$. 计算流程如下:
+(1) 设当前迭代点的$\tilde{u}_N$已知(注意本题使用了共轭梯度法求解方程(\ref{eq:T2_4})), 通过IFFT计算$u_N'(x_j)$, 其中$x_j=\frac{2\pi j}{N}, j=0,1,\cdots,N-1$为配点;
+(2) 逐点相乘得到$p(x_j)u_N'(x_j)$;
+(3) 通过FFT计算$p(x)u_N'(x)$的傅里叶系数, 并对其乘以$i\mathbf{m}$得到$-(p(x)u_N'(x))'$的傅里叶系数.
+$\mathcal{L}_2(\tilde{u})$的计算类似.
+
+(3) 数值结果
+
+使用共轭梯度法求解(容忍精度$10^{-10}$), $N$与$L^2$误差的关系如图\ref{fig:Q2_spectral1}所示. 从图中可以观测到：$L^2$误差从 $N=100$ 时的 $10^{-1}$ 量级迅速降至 $N \approx 250$ 时的 $10^{-7}$ 量级以下, 这表明该伪谱方法对于求解光滑周期解问题具有谱精度; 当 $N$ 增加到约500之后, $L^2$ 误差不再下降, 这可能是由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 从而共轭梯度法不能保证收敛; 后面的误差上升可能是由累积误差所致(也可能是我的实现方式不对?).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2b_F_spectral_Error_Analysis.png}
+  \caption{伪谱方法$N$与$L^2$误差的关系}
+  \label{fig:Q2_spectral1}
+\end{figure}
+
+\subsection*{2.(c)}
+达到10位精度时共轭梯度法所需循环次数与$N$的关系如图\ref{fig:Q2_spectral2}所示. 由图可知, CG迭代次数与 $N$ 近似成正比(例如 $N=1000$ 时迭代约1000次,$N=4000$ 时迭代约4000次), 这说明共轭梯度法并没有因为提前达到10位精度而提前终止, 应证了上述``可能由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 导致使用共轭梯度法不能保证收敛".
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2c_F_spectral_CG_Iterations.png}
+  \caption{共轭梯度法所需循环次数与$N$的关系}
+  \label{fig:Q2_spectral2}
+\end{figure}
+
+\subsection*{2.(d)}
+(1) 理论分析
+
+Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{ikx}$, 使得在所有配点 $x_j$ 上原微分方程成立：
+\begin{equation*}
+  -p'(x_j)u'_N(x_j) - p(x_j)u''_N(x_j) + q(x_j)u_N(x_j) = f(x_j), \quad j=0, 1, \dots, N-1.
+\end{equation*}
+
+记$\mathbf{u} = [u(x_0), \dots, u(x_{N-1})]^T$为在配点 $x_j$ 上的函数值向量, $\mathbf{f} = [f(x_0), \dots, f(x_{N-1})]^T, \mathbf{P} = diag(p(x_0), \dots, p(x_{N-1})), 
+\mathbf{P'} = diag(p'(x_0), \dots, p'(x_{N-1})), \mathbf{Q} = diag(q(x_0), \dots, q(x_{N-1}))$. 记一阶和二阶微分矩阵分别为 $D^{(1)}$ 和 $D^{(2)}$, 则原问题可表示为矩阵形式：
+\begin{equation*}
+  (-\mathbf{P'} D^{(1)}  - \mathbf{P} D^{(2)}  + \mathbf{Q}) \mathbf{u} = \mathbf{f}.
+\end{equation*}
+
+(2) 数值结果
+
+使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2d_F_collocation_Error_Analysis_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了 $10^{-11}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 配点法的谱精度.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2d_F_collocation_Error_Analysis_GE.png}
+  \caption{配点法$N$与$L^2$误差的关系}
+  \label{fig:Q2d_F_collocation_Error_Analysis_GE}
+\end{figure}
+
+\subsection*{2.(e)}
+达到10位精度时共轭梯度法所需循环次数与$N$的关系如图\ref{fig:Q2e_F_collocation_CG_Iterations}所示.
+使用共轭梯度法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2d_F_collocation_Error_Analysis_CG}所示.  图\ref{fig:Q2d_F_collocation_Error_Analysis_CG}中, 初期误差的指数下降证明了方法的谱精度, 而最终误差趋向于$10^{-5}$ , 高于图\ref{fig:Q2d_F_collocation_Error_Analysis_GE}中的机器精度极限 ($10^{-11}$), 可能是因为求解时使用了共轭梯度法, 而$-\mathbf{P'} D^{(1)}  - \mathbf{P} D^{(2)}  + \mathbf{Q}$不是厄米特阵($D^{(1)}$不是对称阵), 导致共轭梯度法不能保证收敛到机器精度.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2e_F_collocation_CG_Iterations.png}
+  \caption{共轭梯度法所需循环次数与$N$的关系}
+  \label{fig:Q2e_F_collocation_CG_Iterations}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2d_F_collocation_Error_Analysis_CG.png}
+  \caption{配点法$N$与$L^2$误差的关系}
+  \label{fig:Q2d_F_collocation_Error_Analysis_CG}
+\end{figure}
+
+\subsection*{3.}
+
+(1) 理论分析
+
+将解 $u(x,t)$ 展开为截断的傅里叶级数：$$u(x, t) \approx u_N(x, t) = \sum_{k=-N/2}^{N/2-1} \hat{u}_k(t) e^{ikx},$$
+记$$R_N(x,t) = \frac{\partial u_N}{\partial t} - \epsilon \frac{\partial^2 u_N}{\partial x^2} - u_N \frac{\partial u_N}{\partial x}, $$
+原问题化为找$u_N$, 使得$$\int_0^{2\pi} R_N(x, t) \cdot e^{-imx} \,dx = 0, \quad  m = -N/2, \dots, N/2-1,$$
+也即找$u\in X_N=span\{e^{ikx}: k=-N/2, \cdots, N/2-1\}$,使得
+\begin{equation}
+\frac{d\hat{u}_k}{dt} =  \epsilon \widehat{\left(\frac{\partial^2 u}{\partial x^2}\right)}_k + \widehat{\left(u \frac{\partial u}{\partial x}\right)}_k, \quad k=-N/2, \dots, N/2-1,
+\label{eq:T3_1}
+\end{equation}
+这里的 $\widehat{(\cdot)}_k$ 表示“括号内项的第$k$个傅里叶系数”. 记 $\hat{N}_k = \widehat{\left(u \frac{\partial u}{\partial x}\right)}_k$ , 则上式可写为
+\begin{equation}
+  \frac{d\hat{u}_k}{dt} = -\epsilon k^2 \hat{u}_k + \hat{N}_k, \quad k=-N/2, \dots, N/2-1.
+  \label{eq:T3_2}
+\end{equation}
+
+
+计算非线性项 $\hat{N}_k = \widehat{\left(u \frac{\partial u}{\partial x}\right)}_k$ 的流程：(1)通过FFT计算 $\frac{\partial u}{\partial x}$, (2)逐点相乘$u .*\frac{\partial u}{\partial x} $, (3)再次使用FFT计算乘积的傅里叶系数.
+
+注: 实际计算使用的是式(\ref{eq:T3_1})的转化形式: 
+\begin{equation}
+  \frac{d\tilde{u}^{fft}_k}{dt} = \widetilde{(\epsilon \frac{\partial^2 u}{\partial x^2} + u \frac{\partial u}{\partial x})}^{fft}_k, \quad k=-N/2, \dots, N/2-1.
+  \label{eq:T3_3}
+\end{equation}
+流程: (1) 已知$t=t_n$时刻的$\tilde{u}^{fft}_k(t_n)$, 通过IFFT计算 $u(x_j, t_n)$ , $\frac{\partial u}{\partial x}(x_j, t_n)$和$\frac{\partial^2 u}{\partial x^2}(x_j, t_n)$; (2) 逐点相乘得到 $u \frac{\partial u}{\partial x}(x_j, t_n)$; (3) 通过FFT计算式(\ref{eq:T3_3})右端的傅里叶系数; (4) 使用四阶Runge-Kutta法求解ODE系统, 得到$t=t_{n+1}$时刻的$\tilde{u}^{fft}_k(t_{n+1})$.
+
+(2) 数值结果
+
+$t=1$时刻的数值结果如图\ref{fig:Q3_t1}所示, 其中$\epsilon=0.03, N_x=N_t=128$. $(x,t)$与$u(x,t)$的关系如图\ref{fig:Q3_3d}所示.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q3_burgers_solution.png}
+  \caption{时刻$t=1$的数值解}
+  \label{fig:Q3_t1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{./figures/Q3_burgers_3d.png}
+  \caption{$(x,t)$与$u(x,t)$的关系}
+  \label{fig:Q3_3d}
+\end{figure}
+
+
+\end{document}
