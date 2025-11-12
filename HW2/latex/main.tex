@@ -233,7 +233,7 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
   \left\{
     \begin{matrix}
     \begin{aligned}
-    &\int_{0}^{2\pi} q(x)u_N(x)e^{-imx} dx = 2\pi \tilde{u}_m\hat{q}_{m},\\
+    &\int_{0}^{2\pi} q(x)u_N(x)e^{-imx} dx = 2\pi \sum_{k=-N/2}^{N/2-1}\hat{q}_{m-k}\tilde{u}_k,\\
     &\int_{0}^{2\pi} f(x)e^{-imx} dx = 2\pi\hat{f}_m,
     \end{aligned}
     \end{matrix}
@@ -242,7 +242,7 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
 \end{equation}
 故原问题可化为求解线性方程组:
 \begin{equation}
-  \sum_{k=-N/2}^{N/2-1}mk\hat{p}_{m-k}\tilde{u}_k+\hat{q}_{m}\tilde{u}_m=\hat{f}_m, \quad m=-N/2,\cdots,N/2-1.
+  \sum_{k=-N/2}^{N/2-1}mk\hat{p}_{m-k}\tilde{u}_k+\sum_{k=-N/2}^{N/2-1}\hat{q}_{m-k}\tilde{u}_k=\hat{f}_m, \quad m=-N/2,\cdots,N/2-1.
   \label{eq:T2_3}
 \end{equation}
 
@@ -258,31 +258,51 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
   \label{eq:T2_4}
 \end{equation}
 
-若直接使用式(\ref{eq:T2_3})左端的卷积形式计算$\mathcal{L}_1(\tilde{u})$, 则每次计算都需要$O(N^2)$的时间复杂度. 为了提高计算效率, 使用伪谱方法计算$\mathcal{L}_1(\tilde{u})$. 计算流程如下:
-(1) 设当前迭代点的$\tilde{u}_N$已知(注意本题使用了共轭梯度法求解方程(\ref{eq:T2_4})), 通过IFFT计算$u_N'(x_j)$, 其中$x_j=\frac{2\pi j}{N}, j=0,1,\cdots,N-1$为配点;
+若直接使用式(\ref{eq:T2_3})左端的卷积形式计算$\mathcal{L}_1(\tilde{u})$, 则每次计算都需要$O(N^2)$的时间复杂度. 为了提高计算效率, 使用伪谱方法计算$\mathcal{L}_1(\tilde{u})$. 
+
+使用高斯消元法时的计算流程如下:
+(1) 设FFT和IFFT对应矩阵分别为$\mathbf{F}, \mathbf{F}^{-1}$, 设$P=diag(p(x_0), \cdots, p(x_{N-1})), Q=diag(q(x_0), \cdots, q(x_{N-1}))$, 
+(2) 计算$\mathcal{L}_1$算子对应的矩阵$$\mathbf{L_1} = -i\mathbf{m} \cdot \mathbf{F} \cdot P \cdot \mathbf{F}^{-1} \cdot i\mathbf{m},$$
+其中$\mathbf{m}= (0, 1, ..., N/2-1, 0, -N/2+1, ..., 0)$;
+(3) 计算$\mathcal{L}_2$算子对应的矩阵$$\mathbf{L_2} = \mathbf{F} \cdot Q \cdot \mathbf{F}^{-1};$$
+(4) 求解线性方程组$ (-i\mathbf{m} \cdot \mathbf{F} \cdot P \cdot \mathbf{F}^{-1} \cdot i\mathbf{m} + \mathbf{F} \cdot Q \cdot \mathbf{F}^{-1}) \tilde{u} = \hat{f}.$
+
+使用共轭梯度法求解时的计算流程如下:
+(1) 设当前迭代点的$\tilde{u}_N$已知, 通过IFFT计算$u_N'(x_j)$, 其中$x_j=\frac{2\pi j}{N}, j=0,1,\cdots,N-1$为配点;
 (2) 逐点相乘得到$p(x_j)u_N'(x_j)$;
 (3) 通过FFT计算$p(x)u_N'(x)$的傅里叶系数, 并对其乘以$i\mathbf{m}$得到$-(p(x)u_N'(x))'$的傅里叶系数.
 $\mathcal{L}_2(\tilde{u})$的计算类似.
 
 (3) 数值结果
 
-使用共轭梯度法求解(容忍精度$10^{-10}$), $N$与$L^2$误差的关系如图\ref{fig:Q2_spectral1}所示. 从图中可以观测到：$L^2$误差从 $N=100$ 时的 $10^{-1}$ 量级迅速降至 $N \approx 250$ 时的 $10^{-7}$ 量级以下, 这表明该伪谱方法对于求解光滑周期解问题具有谱精度; 当 $N$ 增加到约500之后, $L^2$ 误差不再下降, 这可能是由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 从而共轭梯度法不能保证收敛; 后面的误差上升可能是由累积误差所致(也可能是我的实现方式不对?).
+使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2_spectral_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了约 $10^{-12}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 伪谱方法的谱精度. 随后误差略有上升, 这可能是由累积误差所致.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.75\textwidth]{./figures/Q2b_F_spectral_Error_Analysis.png}
-  \caption{伪谱方法$N$与$L^2$误差的关系}
-  \label{fig:Q2_spectral1}
+  \caption{伪谱方法$N$与$L^2$误差的关系(高斯消元法)}
+  \label{fig:Q2_spectral_GE}
 \end{figure}
 
+
 \subsection*{2.(c)}
-达到10位精度时共轭梯度法所需循环次数与$N$的关系如图\ref{fig:Q2_spectral2}所示. 由图可知, CG迭代次数与 $N$ 近似成正比(例如 $N=1000$ 时迭代约1000次,$N=4000$ 时迭代约4000次), 这说明共轭梯度法并没有因为提前达到10位精度而提前终止, 应证了上述``可能由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 导致使用共轭梯度法不能保证收敛".
+使用共轭梯度法求解(容忍精度$10^{-10}$), $N$与$L^2$误差的关系如图\ref{fig:Q2_spectral_CG}所示. 从图中可以观测到：$L^2$误差从 $N=100$ 时的 $10^{-1}$ 量级迅速降至 $N \approx 250$ 时的 $10^{-7}$ 量级以下, 这表明该伪谱方法对于求解光滑周期解问题具有谱精度; 当 $N$ 增加到约500之后, $L^2$ 误差不再下降, 这可能是由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 从而共轭梯度法不能保证收敛; 后面的误差上升可能是由累积误差所致(也可能是我的实现方式不对?).
+
+达到10位精度时共轭梯度法所需循环次数与$N$的关系如图\ref{fig:Q2_spectral_iter}所示. 由图可知, CG迭代次数与 $N$ 近似成正比(例如 $N=1000$ 时迭代约1000次,$N=4000$ 时迭代约4000次), 这说明共轭梯度法并没有因为提前达到10位精度而提前终止, 应证了上述``可能由于$\mathcal{L}_1+\mathcal{L}_2$不是自伴算子, 导致使用共轭梯度法不能保证收敛".
+
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.75\textwidth]{./figures/Q2c_F_spectral_CG_Iterations.png}
   \caption{共轭梯度法所需循环次数与$N$的关系}
-  \label{fig:Q2_spectral2}
+  \label{fig:Q2_spectral_iter}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./figures/Q2c_F_spectral_Error_Analysis_CG.png}
+  \caption{伪谱方法$N$与$L^2$误差的关系(共轭梯度法)}
+  \label{fig:Q2_spectral_CG}
 \end{figure}
 
 \subsection*{2.(d)}
@@ -301,7 +321,7 @@ Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{i
 
 (2) 数值结果
 
-使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2d_F_collocation_Error_Analysis_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了 $10^{-11}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 配点法的谱精度.
+使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2d_F_collocation_Error_Analysis_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了 $10^{-11}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 配点法的谱精度. 同时说明了在该题中配点法的精度可能不如上述的Galerkin伪谱方法.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.75\textwidth]{./figures/Q2d_F_collocation_Error_Analysis_GE.png}
