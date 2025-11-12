@@ -48,12 +48,12 @@ def FDM(p, q, f, a, b, N):
     u = scipy.linalg.solve(A, B)
     return u
 
-def F_spectral(p, q, f, a=0, b=2*np.pi, N=100, return_iter=False):
+def F_spectral(p, q, f, a=0, b=2*np.pi, N=100, CG=False):
     '''
     p,q,f: functions of x
     a,b: interval endpoints
     N: number of modes
-    return_iter: if True, return (u, iteration_count) instead of just u
+    CG: if True, return (u, iteration_count) instead of just u
     Note: since the linear system is black-boxed, we use Conjugate-Gradient to solve it.
     '''
     # initialize the vector k needed for calculating derivatives
@@ -84,29 +84,45 @@ def F_spectral(p, q, f, a=0, b=2*np.pi, N=100, return_iter=False):
     def L_operator(P, Q, u_hat):
         return L1_operator(P, u_hat) + L2_operator(Q, u_hat)
     
-    # use Conjugate-Gradient method to solve the linear system
-    # Create a LinearOperator for the CG method
-    A = LinearOperator((N, N), matvec=lambda u_hat: L_operator(P, Q, u_hat), dtype=np.complex128)
-    u_hat = np.zeros(N, dtype=np.complex128)
-    
-    # 用于记录迭代次数
-    iteration_count = [0]
-    def callback(xk):
-        iteration_count[0] += 1
 
-    u_hat, info = cg(A, F_hat, x0=u_hat, tol=1e-10, maxiter=N, callback=callback)
-    u = np.fft.ifft(u_hat)
+    if CG:
+        # use Conjugate-Gradient method to solve the linear system
+        # Create a LinearOperator for the CG method
+        A = LinearOperator((N, N), matvec=lambda u_hat: L_operator(P, Q, u_hat), dtype=np.complex128)
+        u_hat = np.zeros(N, dtype=np.complex128)
+        
+        # 用于记录迭代次数
+        iteration_count = [0]
+        def callback(xk):
+            iteration_count[0] += 1
 
-    if return_iter:
+        u_hat, info = cg(A, F_hat, x0=u_hat, tol=1e-10, maxiter=N, callback=callback)
+        u = np.fft.ifft(u_hat)
+
         return u, iteration_count[0]
-    return u
+    
+    else:
+        # FFT是FFT对应的矩阵, IFFT是IFFT对应的矩阵
+        # FFT对应numpy的fft(未归一化)
+        FFT = scipy.linalg.dft(N)
+        # IFFT对应numpy的ifft(归一化,除以N)
+        IFFT = np.conj(FFT).T / N
+        # construct system matrix A
+        k_1 = np.diag(k)
+        P_diag = np.diag(P)
+        Q_diag = np.diag(Q)
+        A = - k_1 @ FFT @ P_diag @ IFFT @ k_1 + FFT @ Q_diag @ IFFT
+        B = F_hat
+        u_hat = scipy.linalg.solve(A, B)
+        u = np.fft.ifft(u_hat)
+        return u
 
-def F_collocation(p, p_prime, q, f, a=0, b=2*np.pi, N=100, return_iter=False):
+def F_collocation(p, p_prime, q, f, a=0, b=2*np.pi, N=100, CG=False):
     '''
     p,p_prime,q,f: functions of x
     a,b: interval endpoints
     N: number of collocation points
-    return_iter: if True, return (u, iteration_count) instead of just u
+    CG: if True, return (u, iteration_count) instead of just u
     '''
     # initialize differentiation matrices
     x = np.linspace(a, b, N, endpoint=False)  # 注意周期性, 不包括b点
@@ -146,12 +162,12 @@ def F_collocation(p, p_prime, q, f, a=0, b=2*np.pi, N=100, return_iter=False):
     B = F
     
     # 普通的解方程法
-    if not return_iter:
+    if not CG:
         u = scipy.linalg.solve(A, B)
 
     # 共轭梯度法
     # 用于记录迭代次数
-    if return_iter:
+    if CG:
         iteration_count = [0]
         def callback(xk):
             iteration_count[0] += 1
@@ -191,15 +207,17 @@ if __name__ == "__main__":
         x = np.linspace(a, b, N, endpoint=False)    # x0, x1, ..., x_{N-1}
         u_exact_val = u(x)
         u_FDM_val = FDM(p, q, f, a, b, N)
-        u_spec, iter_spec = F_spectral(p, q, f, a, b, N, return_iter=True)
-        u_coll_GE = F_collocation(p, p_prime, q, f, a, b, N, return_iter=False)
-        u_coll_CG, iter_coll = F_collocation(p, p_prime, q, f, a, b, N, return_iter=True)
+        u_spec_GE = F_spectral(p, q, f, a, b, N, CG=False)
+        u_spec_CG, iter_spec = F_spectral(p, q, f, a, b, N, CG=True)
+        u_coll_GE = F_collocation(p, p_prime, q, f, a, b, N, CG=False)
+        u_coll_CG, iter_coll = F_collocation(p, p_prime, q, f, a, b, N, CG=True)
         
         return {
             'N': N,
             'u_exact': u_exact_val,
             'u_FDM': u_FDM_val,
-            'u_F_spectral': u_spec,
+            'u_F_spectral_GE': u_spec_GE,
+            'u_F_spectral_CG': u_spec_CG,
             'spectral_iter': iter_spec,
             'u_F_collocation_GE': u_coll_GE,
             'u_F_collocation_CG': u_coll_CG,
@@ -220,16 +238,17 @@ if __name__ == "__main__":
     print("并行计算完成！")
     
     # 整理结果
-    u_exact, u_FDM, u_F_spectral, u_F_collocation_GE, u_F_collocation_CG = [],[],[],[],[]
+    u_exact, u_FDM, u_F_spectral_GE, u_F_spectral_CG, u_F_collocation_GE, u_F_collocation_CG = [],[],[],[],[],[]
     spectral_iters, collocation_iters = [], []
     
     for result in results:
         u_exact.append(result['u_exact'])
         u_FDM.append(result['u_FDM'])
-        u_F_spectral.append(result['u_F_spectral'])
-        spectral_iters.append(result['spectral_iter'])
+        u_F_spectral_GE.append(result['u_F_spectral_GE'])
+        u_F_spectral_CG.append(result['u_F_spectral_CG'])
         u_F_collocation_GE.append(result['u_F_collocation_GE'])
         u_F_collocation_CG.append(result['u_F_collocation_CG'])
+        spectral_iters.append(result['spectral_iter'])
         collocation_iters.append(result['collocation_iter_CG'])
 
     # question 2 (a) error analysis and plotting
@@ -264,11 +283,11 @@ if __name__ == "__main__":
     plt.show()
 
     # question 2 (b) error analysis and plotting
-    # compute u_F_spectral L^2 errors
+    # compute u_F_spectral L^2 errors, for GE method
     F_spectral_L2_errors = []
     for i in range(len(N_list)):
         N = N_list[i]
-        L2_error = compute_L2_error(u_F_spectral[i], u_exact[i], (b - a) / N)
+        L2_error = compute_L2_error(u_F_spectral_GE[i], u_exact[i], (b - a) / N)
         F_spectral_L2_errors.append(L2_error)
 
     # plot error-N semilog errors, save as PNG
@@ -281,6 +300,21 @@ if __name__ == "__main__":
     plt.show()
 
     # question 2 (c) CG iterations vs N for reaching 10-digit precision ,F_spectral
+    # compute u_F_spectral L^2 errors, for CG method
+    F_spectral_L2_errors_CG = []
+    for i in range(len(N_list)):
+        N = N_list[i]
+        L2_error = compute_L2_error(u_F_spectral_CG[i], u_exact[i], (b - a) / N)
+        F_spectral_L2_errors_CG.append(L2_error)
+    # plot error-N semilog errors, save as PNG
+    plt.figure()
+    plt.semilogy(N_list, F_spectral_L2_errors_CG, 'o-')
+    plt.xlabel('配点数 (N)')
+    plt.ylabel('$L^2$ 误差')
+    plt.grid()
+    plt.savefig(os.path.join(savepath, 'Q2c_F_spectral_Error_Analysis_CG.png'))
+    plt.show()
+    # plot CG iterations vs N
     plt.figure()
     plt.plot(N_list, spectral_iters, 'o-')
     plt.xlabel('配点数 (N)')
