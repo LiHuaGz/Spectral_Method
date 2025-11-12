@@ -156,7 +156,7 @@
 
 \subsection*{2.(a)}
 
-(1) 理论分析
+\textbf{(1) 理论分析}
 
 易知$f(x)=e^{\sin(8x)}(-8\cos(x)\cos(8x)+64(2+\sin(x))(\sin(8x)-\cos^2(8x))+\sin^2(x))$.
 
@@ -197,7 +197,7 @@ $v'(x_k)$的二阶有限差分格式为:
 \end{equation*}
 其中$p_{k\pm\frac{1}{2}}=p(x_k\pm\frac{h}{2}), q_k=q(x_k), f_k=f(x_k), u_k=u(x_k)$.
 
-(2) 数值结果
+\textbf{(2) 数值结果}
 
 $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $L^2$ 误差(斜率: 2.02)和 $H^1$ 误差(斜率: 1.94)的拟合直线斜率均非常接近2, 这表明算法的收敛阶为2, 与理论分析结果一致.
 
@@ -209,7 +209,7 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
 \end{figure}
 
 \subsection*{2.(b)}
-(1) Fourier-Galerkin谱方法
+\textbf{(1) Fourier-Galerkin谱方法}
 
 记$X_N=span\left\{e^{ikx}: k=-N/2, \cdots, N/2-1\right\}, u_N=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{ikx}$, 则Fourier-Galerkin谱方法即找出$u_N \in X_N$, 使得
 \begin{equation}
@@ -246,7 +246,7 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
   \label{eq:T2_3}
 \end{equation}
 
-(2) Fourier-Galerkin伪谱方法
+\textbf{(2) Fourier-Galerkin伪谱方法}
 
 事实上, 式(\ref{eq:T2_1})也即
 \begin{equation*}
@@ -273,7 +273,7 @@ $h$与$L^2$、$H^1$误差的关系如图\ref{fig:Q2_FDM1}所示. 由图可见, $
 (3) 通过FFT计算$p(x)u_N'(x)$的傅里叶系数, 并对其乘以$i\mathbf{m}$得到$-(p(x)u_N'(x))'$的傅里叶系数.
 $\mathcal{L}_2(\tilde{u})$的计算类似.
 
-(3) 数值结果
+\textbf{(3) 数值结果}
 
 使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2_spectral_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了约 $10^{-12}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 伪谱方法的谱精度. 随后误差略有上升, 这可能是由累积误差所致.
 
@@ -306,7 +306,7 @@ $\mathcal{L}_2(\tilde{u})$的计算类似.
 \end{figure}
 
 \subsection*{2.(d)}
-(1) 理论分析
+\textbf{(1) 理论分析}
 
 Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{ikx}$, 使得在所有配点 $x_j$ 上原微分方程成立：
 \begin{equation*}
@@ -319,7 +319,7 @@ Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{i
   (-\mathbf{P'} D^{(1)}  - \mathbf{P} D^{(2)}  + \mathbf{Q}) \mathbf{u} = \mathbf{f}.
 \end{equation*}
 
-(2) 数值结果
+\textbf{(2) 数值结果}
 
 使用高斯消元法求解时, $N$与$L^2$误差的关系如图\ref{fig:Q2d_F_collocation_Error_Analysis_GE}所示. 可见$L^2$ 误差随 $N$ 增加而呈指数级快速下降, 在 $N \approx 500$ 之后,误差达到了 $10^{-11}$ 量级, 这代表了由双精度浮点数运算所决定的机器精度极限. 该结果验证了 Fourier 配点法的谱精度. 同时说明了在该题中配点法的精度可能不如上述的Galerkin伪谱方法.
 \begin{figure}[H]
@@ -348,8 +348,7 @@ Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{i
 \end{figure}
 
 \subsection*{3.}
-
-(1) 理论分析
+\textbf{(1) 理论分析}
 
 将解 $u(x,t)$ 展开为截断的傅里叶级数：$$u(x, t) \approx u_N(x, t) = \sum_{k=-N/2}^{N/2-1} \hat{u}_k(t) e^{ikx},$$
 记$$R_N(x,t) = \frac{\partial u_N}{\partial t} - \epsilon \frac{\partial^2 u_N}{\partial x^2} - u_N \frac{\partial u_N}{\partial x}, $$
@@ -375,7 +374,7 @@ Fourier配点法即要找近似解 $u_N(x)=\sum_{k=-N/2}^{N/2-1}\tilde{u_k} e^{i
 \end{equation}
 流程: (1) 已知$t=t_n$时刻的$\tilde{u}^{fft}_k(t_n)$, 通过IFFT计算 $u(x_j, t_n)$ , $\frac{\partial u}{\partial x}(x_j, t_n)$和$\frac{\partial^2 u}{\partial x^2}(x_j, t_n)$; (2) 逐点相乘得到 $u \frac{\partial u}{\partial x}(x_j, t_n)$; (3) 通过FFT计算式(\ref{eq:T3_3})右端的傅里叶系数; (4) 使用四阶Runge-Kutta法求解ODE系统, 得到$t=t_{n+1}$时刻的$\tilde{u}^{fft}_k(t_{n+1})$.
 
-(2) 数值结果
+\textbf{(2) 数值结果}
 
 $t=1$时刻的数值结果如图\ref{fig:Q3_t1}所示, 其中$\epsilon=0.03, N_x=N_t=128$. $(x,t)$与$u(x,t)$的关系如图\ref{fig:Q3_3d}所示.
 

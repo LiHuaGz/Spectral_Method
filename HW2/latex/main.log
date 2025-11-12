@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.8)  12 NOV 2025 21:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.8)  12 NOV 2025 21:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -641,7 +641,7 @@ Package CJKpunct Info: use punctuation spaces for family 'rm' with punctstyle (q
 
 
 [4]
-<./figures/Q2a_FDM_Error_Analysis.png, id=110, 462.528pt x 346.896pt>
+<./figures/Q2a_FDM_Error_Analysis.png, id=114, 462.528pt x 346.896pt>
 File: ./figures/Q2a_FDM_Error_Analysis.png Graphic file (type png)
 <use ./figures/Q2a_FDM_Error_Analysis.png>
 Package pdftex.def Info: ./figures/Q2a_FDM_Error_Analysis.png  used on input line 206.
@@ -656,7 +656,7 @@ Overfull \hbox (7.79321pt too wide) in paragraph at lines 263--265
 
 
 [6]
-<./figures/Q2b_F_spectral_Error_Analysis.png, id=149, 462.528pt x 346.896pt>
+<./figures/Q2b_F_spectral_Error_Analysis.png, id=159, 462.528pt x 346.896pt>
 File: ./figures/Q2b_F_spectral_Error_Analysis.png Graphic file (type png)
 <use ./figures/Q2b_F_spectral_Error_Analysis.png>
 Package pdftex.def Info: ./figures/Q2b_F_spectral_Error_Analysis.png  used on input line 282.
@@ -664,12 +664,12 @@ Package pdftex.def Info: ./figures/Q2b_F_spectral_Error_Analysis.png  used on in
 
 
 [7 <./figures/Q2b_F_spectral_Error_Analysis.png>]
-<./figures/Q2c_F_spectral_CG_Iterations.png, id=163, 462.528pt x 346.896pt>
+<./figures/Q2c_F_spectral_CG_Iterations.png, id=173, 462.528pt x 346.896pt>
 File: ./figures/Q2c_F_spectral_CG_Iterations.png Graphic file (type png)
 <use ./figures/Q2c_F_spectral_CG_Iterations.png>
 Package pdftex.def Info: ./figures/Q2c_F_spectral_CG_Iterations.png  used on input line 296.
 (pdftex.def)             Requested size: 339.72592pt x 254.80405pt.
-<./figures/Q2c_F_spectral_Error_Analysis_CG.png, id=164, 462.528pt x 346.896pt>
+<./figures/Q2c_F_spectral_Error_Analysis_CG.png, id=174, 462.528pt x 346.896pt>
 File: ./figures/Q2c_F_spectral_Error_Analysis_CG.png Graphic file (type png)
 <use ./figures/Q2c_F_spectral_Error_Analysis_CG.png>
 Package pdftex.def Info: ./figures/Q2c_F_spectral_Error_Analysis_CG.png  used on input line 303.
@@ -682,7 +682,7 @@ Overfull \hbox (23.76123pt too wide) in paragraph at lines 316--318
  \C70/rm/m/n/12/76 „ \C70/rm/m/n/12/51 ý \C70/rm/m/n/12/65 p \C70/rm/m/n/12/50 < \C70/rm/m/n/12/54 ^^Q \C70/rm/m/n/12/91 Ï\OT1/cmr/m/n/12 (-20) , $\OT1/cmr/bx/n/12 (-20) f \OT1/cmr/m/n/12 (-20) = [\OML/cmm/m/it/12 f\OT1/cmr/m/n/12 (-20) (\OML/cmm/m/it/12 x[]\OT1/cmr/m/n/12 (-20) )\OML/cmm/m/it/12 ; [] ; f\OT1/cmr/m/n/12 (-20) (\OML/cmm/m/it/12 x[]\OT1/cmr/m/n/12 (-20) )][]\OML/cmm/m/it/12 ; \OT1/cmr/bx/n/12 (-20) P \OT1/cmr/m/n/12 (-20) =
  []
 
-<./figures/Q2d_F_collocation_Error_Analysis_GE.png, id=170, 462.528pt x 346.896pt>
+<./figures/Q2d_F_collocation_Error_Analysis_GE.png, id=180, 462.528pt x 346.896pt>
 File: ./figures/Q2d_F_collocation_Error_Analysis_GE.png Graphic file (type png)
 <use ./figures/Q2d_F_collocation_Error_Analysis_GE.png>
 Package pdftex.def Info: ./figures/Q2d_F_collocation_Error_Analysis_GE.png  used on input line 327.
@@ -690,12 +690,12 @@ Package pdftex.def Info: ./figures/Q2d_F_collocation_Error_Analysis_GE.png  used
 
 
 [9 <./figures/Q2d_F_collocation_Error_Analysis_GE.png>]
-<./figures/Q2e_F_collocation_CG_Iterations.png, id=177, 462.528pt x 346.896pt>
+<./figures/Q2e_F_collocation_CG_Iterations.png, id=187, 462.528pt x 346.896pt>
 File: ./figures/Q2e_F_collocation_CG_Iterations.png Graphic file (type png)
 <use ./figures/Q2e_F_collocation_CG_Iterations.png>
 Package pdftex.def Info: ./figures/Q2e_F_collocation_CG_Iterations.png  used on input line 338.
 (pdftex.def)             Requested size: 339.72592pt x 254.80405pt.
-<./figures/Q2d_F_collocation_Error_Analysis_CG.png, id=178, 462.528pt x 346.896pt>
+<./figures/Q2d_F_collocation_Error_Analysis_CG.png, id=188, 462.528pt x 346.896pt>
 File: ./figures/Q2d_F_collocation_Error_Analysis_CG.png Graphic file (type png)
 <use ./figures/Q2d_F_collocation_Error_Analysis_CG.png>
 Package pdftex.def Info: ./figures/Q2d_F_collocation_Error_Analysis_CG.png  used on input line 345.
@@ -703,18 +703,18 @@ Package pdftex.def Info: ./figures/Q2d_F_collocation_Error_Analysis_CG.png  used
 
 
 [10 <./figures/Q2e_F_collocation_CG_Iterations.png> <./figures/Q2d_F_collocation_Error_Analysis_CG.png>]
-<./figures/Q3_burgers_solution.png, id=187, 722.7pt x 433.62pt>
+<./figures/Q3_burgers_solution.png, id=197, 722.7pt x 433.62pt>
 File: ./figures/Q3_burgers_solution.png Graphic file (type png)
 <use ./figures/Q3_burgers_solution.png>
-Package pdftex.def Info: ./figures/Q3_burgers_solution.png  used on input line 384.
+Package pdftex.def Info: ./figures/Q3_burgers_solution.png  used on input line 383.
 (pdftex.def)             Requested size: 339.72592pt x 203.8345pt.
 
 
 [11]
-<./figures/Q3_burgers_3d.png, id=192, 867.24pt x 578.16pt>
+<./figures/Q3_burgers_3d.png, id=202, 867.24pt x 578.16pt>
 File: ./figures/Q3_burgers_3d.png Graphic file (type png)
 <use ./figures/Q3_burgers_3d.png>
-Package pdftex.def Info: ./figures/Q3_burgers_3d.png  used on input line 391.
+Package pdftex.def Info: ./figures/Q3_burgers_3d.png  used on input line 390.
 (pdftex.def)             Requested size: 407.66833pt x 271.77934pt.
 
 
@@ -725,18 +725,18 @@ L3 programming layer <2022/07/14>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14110 strings out of 475118
- 256449 string characters out of 5763501
+ 14164 strings out of 475118
+ 257389 string characters out of 5763501
  776749 words of memory out of 5000000
- 36711 multiletter control sequences out of 15000+600000
- 591076 words of font info for 175 fonts, out of 8000000 for 9000
+ 36745 multiletter control sequences out of 15000+600000
+ 593776 words of font info for 185 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  80i,14n,83p,1165b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (12 pages, 1005225 bytes).
+<c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simhei.ttf><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><c:/Windows/Fonts/simsun.ttc><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><d:/Program Files/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (12 pages, 1025921 bytes).
 PDF statistics:
- 449 PDF objects out of 1000 (max. 8388607)
- 260 compressed objects within 3 object streams
+ 489 PDF objects out of 1000 (max. 8388607)
+ 290 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
  23334 words of extra memory for PDF output out of 24883 (max. 10000000)
 
