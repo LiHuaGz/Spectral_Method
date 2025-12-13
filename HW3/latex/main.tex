@@ -1,0 +1,603 @@
+\documentclass[UTF8, a4paper, 12pt]{ctexart}
+
+% 基本设置
+\usepackage[margin=1in]{geometry} % 页边距
+\usepackage{amsmath,  amssymb,  amsthm} % 数学环境
+\usepackage{enumitem} % 控制 enumerate 格式
+\usepackage{lipsum}  % 测试文字, 可以删掉
+\usepackage{float}
+\usepackage{bbm}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{url} % 支持URL链接
+\usepackage[american]{babel} % 保证英文单词断行按音节切割
+\usepackage{microtype} % 调整字间距, 改善排版效果
+\usepackage{fancyhdr} % 添加页眉页脚包
+
+% 设置页面样式
+\pagestyle{fancy}
+\fancyhf{} % 清除所有页眉页脚
+\fancyfoot[C]{\thepage} % 在页脚中央显示页码
+\renewcommand{\headrulewidth}{0pt} % 去掉页眉分割线
+
+% 重新定义 subsection* 命令, 使后面段落自动缩进
+\makeatletter
+\newcommand{\subsectionstar}[1]{%
+\subsection*{#1}%
+ \setlength{\parindent}{2em}% 设置段落缩进为2em
+ \par\nobreak% 防止分页
+}
+\makeatother
+
+% 让 enumerate 的序号对齐美观
+\setlist[enumerate, 1]{label=\arabic*., leftmargin=1.5em,  labelsep=0.5em,  align=left}
+
+% 标题部分
+\title{偏微分方程数值解: 第二次作业}
+\author{林立康 \quad 25210180078}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+相关代码可从 \url{https://github.com/LiHuaGz/Spectral_Method.git} 获取.
+\subsection*{1.(a)}
+
+令 $\mathcal{L} u = \partial_x^m [(1-x^2)^m \partial_x^m u].$ 显然 $\forall u \in P_n, \mathcal{L}u \in P_n.$
+对于 $\forall \phi \in P_{n-1}$, 我们考察内积:
+\begin{align*}
+(\mathcal{L} L_n, \phi)_{w^{0,0}} &= \int_{-1}^1 \partial_x^m [(1-x^2)^m \partial_x^m L_n] \phi \, dx \\
+&= (-1)^m \int_{-1}^1 (1-x^2)^m \partial_x^m L_n \cdot \partial_x^m \phi \, dx \quad (\text{分部积分}) \\
+&= (-1)^m \cdot (-1)^m \int_{-1}^1 L_n \partial_x^m [(1-x^2)^m \partial_x^m \phi] \, dx \\
+&= (L_n, \mathcal{L}\phi)_{w^{0,0}}.
+\end{align*}
+由于 $\phi \in P_{n-1}$, 故 $\mathcal{L}\phi \in P_{n-1}$, 从而
+$$ (L_n, \mathcal{L}\phi)_{w^{0,0}} = 0. $$
+由 $I=(-1,1), w^{0,0} \equiv 1$ 对应正交多项式的唯一性, 必存在常数 $\tilde{\lambda}_{n,m}$ 使得:
+$$ \mathcal{L} L_n = \tilde{\lambda}_{n,m} L_n. $$
+
+\noindent \textbf{计算特征值 $\tilde{\lambda}_{n,m}$:}
+
+考察方程两边的首项系数.
+由 Leibniz 公式, $\mathcal{L} L_n = \sum_{k=0}^m \binom{m}{k} [(1-x^2)^m]^{(k)} (\partial_x^m L_n)^{(m-k)}.$
+其首项系数由 $k=0$ 项贡献 (最高次项):
+\begin{align*}
+\text{Coeff}(\mathcal{L} L_n) &= \binom{m}{0} \cdot (-1)^m \cdot k_n \cdot \frac{(2m)!}{(2m-0)!} \cdot \frac{n!}{(n-(2m-0))!} \\
+&= (-1)^m \cdot k_n \cdot (2m)! \sum_{k=0}^m \binom{m}{k} \binom{n}{2m-k} \\
+&= (-1)^m \cdot k_n \cdot \frac{(n+m)!}{(n-m)!}.
+\end{align*}
+其中 $k_n$ 为 $L_n$ 的首项系数.
+比较两边系数即得:
+$$ \tilde{\lambda}_{n,m} = (-1)^m \frac{(n+m)!}{(n-m)!}. $$
+从而原式成立.
+\subsection*{1.(b)}
+
+利用 (a) 中的算子性质:
+\begin{align*}
+\int_{-1}^1 L_n^{(m)}(x) L_k^{(m)}(x) (1-x^2)^m \, dx 
+&= (-1)^m \int_{-1}^1 L_n(x) \partial_x^m \left[ L_k^{(m)}(x) (1-x^2)^m \right] \, dx \\
+&= (-1)^m \int_{-1}^1 L_n(x) \mathcal{L} L_k(x) \, dx \\
+&= (-1)^m \int_{-1}^1 L_n(x) \tilde{\lambda}_{k,m} L_k(x) \, dx \\
+&= \frac{(n+m)!}{(n-m)!} \|L_n\|^2 \delta_{n,k}.
+\end{align*}
+
+\subsection*{1.(c)}
+
+\textbf{$m=0$ 时:}
+由递推关系 $(n+1)L_{n+1}(x) = (2n+1)xL_n(x) - nL_{n-1}(x), n \ge 1$, 易知:
+$$ L_n(\pm 1) = (\pm 1)^n. $$
+
+\textbf{$m \ge 1$ 时:} 
+当 $x = -1$ 时, 
+\begin{align*}
+& \partial_x^m \left[ (1+x)^m (1-x)^m L_n^{(m)} \right] \Bigg|_{x=-1} \\
+=& \sum_{k=0}^m \binom{m}{k} \left[ (1+x)^m \right]^{(k)} \left[ (1-x)^m L_n^{(m)} \right]^{(m-k)} \Bigg|_{x=-1} \\
+=& m! \cdot 2^m \cdot L_n^{(m)}(-1).
+\end{align*}
+故由 (a),
+$$ L_n^{(m)}(-1) = \frac{(-1)^m \tilde{\lambda}_{n,m} (-1)^n}{m! 2^m} = \frac{(-1)^{m+n}}{m! 2^m} \frac{(n+m)!}{(n-m)!}. $$
+
+同理, 当 $x=1$ 时:
+\begin{align*}
+\partial_x^m \left[ (1-x)^m (1+x)^m L_n^{(m)} \right] \Bigg|_{x=1} 
+&= (-1)^m \cdot m! \cdot 2^m L_n^{(m)}(1).
+\end{align*}
+结合 $\mathcal{L} L_n(1) = \tilde{\lambda}_{n,m} L_n(1) = (-1)^m \frac{(n+m)!}{(n-m)!}$, 解得:
+$$ L_n^{(m)}(1) = \frac{\tilde{\lambda}_{n,m}}{m! 2^m} = \frac{1}{m! 2^m} \frac{(n+m)!}{(n-m)!}. $$
+
+\subsection*{1.(d)}
+
+\textbf{$n$ 为奇数时:}
+由于 $L_n(-x) = (-1)^n L_n(x) = -L_n(x)$, 故 $L_n(0) = 0.$
+
+\textbf{$n$ 为偶数时:}
+由勒让德多项式的显式公式:
+$$ L_n(x) = \frac{1}{2^n} \sum_{l=0}^{n/2} (-1)^l \frac{(2n-2l)!}{l! (n-l)! (n-2l)!} x^{n-2l}. $$
+取 $x=0$, 仅当 $n-2l=0$ 即 $l=n/2$ 时有非零项:
+$$ L_n(0) = \frac{1}{2^n} (-1)^{n/2} \frac{n!}{(n/2)! (n/2)! 0!} = \frac{(-1)^{n/2} n!}{2^n [(n/2)!]^2}. $$
+
+\subsection*{1.(e)}
+
+利用 Laplace 积分表示:
+$$ L_n(x) = \frac{1}{\pi} \int_0^\pi \left( x + i \sqrt{1-x^2} \cos \theta \right)^n d\theta. $$
+考察被积函数的模长平方:
+\begin{align*}
+\left| x + i \sqrt{1-x^2} \cos \theta \right|^2 
+&= x^2 + (1-x^2)\cos^2 \theta \\
+&= x^2 (1-\cos^2 \theta) + \cos^2 \theta \\
+&= x^2 \sin^2 \theta + \cos^2 \theta \le \sin^2 \theta + \cos^2 \theta = 1.
+\end{align*}
+
+\textbf{当 $n \ge 2$ 时:}
+$$ \left| x + i \sqrt{1-x^2} \cos \theta \right|^n \le \left| x + i \sqrt{1-x^2} \cos \theta \right|^2. $$
+故:
+\begin{equation*}
+  |L_n(x)| \le \frac{1}{\pi} \int_0^\pi (x^2 \sin^2 \theta + \cos^2 \theta) \, d\theta \le \frac{1}{\pi} \left( x^2 \frac{\pi}{2} + \frac{\pi}{2} \right) = \frac{1+x^2}{2}.
+\end{equation*}
+当 $n=1$ 时, $L_1(x)=x$, $|x| \le \frac{1+x^2}{2}$ (即 $(|x|-1)^2 \ge 0$) 显然成立.
+
+\subsection*{1.(f)}
+
+\textbf{1. 首先考虑第三个式子:}
+
+已知 $L_n(x) = \frac{1}{2n+1}(L'_{n+1}(x) - L'_{n-1}(x)).$
+\begin{align*}
+\partial_x^k u &= \sum_{n=0}^N \hat{u}_n^{(k)} L_n 
+= \sum_{n=0}^N \hat{u}_n^{(k)} \frac{1}{2n+1} (L'_{n+1} - L'_{n-1}) \\
+&= \sum_{n=1}^{N+1} \frac{\hat{u}_{n-1}^{(k)}}{2n-1} L'_n - \sum_{n=0}^{N-1} \frac{\hat{u}_{n+1}^{(k)}}{2n+3} L'_n \\
+&= \sum_{n=1}^{N-1} \left[ \frac{\hat{u}_{n-1}^{(k)}}{2n-1} - \frac{\hat{u}_{n+1}^{(k)}}{2n+3} \right] L'_n + (\text{边界项}).
+\end{align*}
+另一方面, $\partial_x^k u = \partial_x (\partial_x^{k-1} u) = \sum_{n=0}^N \hat{u}_n^{(k-1)} L'_n.$
+对比 $L'_n$ 的系数得:
+$$ \hat{u}_n^{(k-1)} = \frac{1}{2n-1} \hat{u}_{n-1}^{(k)} - \frac{1}{2n+3} \hat{u}_{n+1}^{(k)}. $$
+
+\textbf{2. 其次考虑第一个式子:}
+
+将上式重写为:
+$$ \frac{\hat{u}_{n-1}^{(1)}}{2n-1} = \hat{u}_n^{(0)} + \frac{\hat{u}_{n+1}^{(1)}}{2n+3}. $$
+作变量替换 $n \to n+1$:
+$$ \frac{\hat{u}_n^{(1)}}{2n+1} = \hat{u}_{n+1}^{(0)} + \frac{\hat{u}_{n+2}^{(1)}}{2n+5}. $$
+这是一个关于 $\frac{\hat{u}_n^{(1)}}{2n+1}$ 的递归式.
+展开得:
+\begin{align*}
+\frac{\hat{u}_n^{(1)}}{2n+1} &= \hat{u}_{n+1}^{(0)} + \left( \hat{u}_{n+3}^{(0)} + \frac{\hat{u}_{n+4}^{(1)}}{2n+9} \right) \\
+&= \hat{u}_{n+1}^{(0)} + \hat{u}_{n+3}^{(0)} + \hat{u}_{n+5}^{(0)} + \dots \\
+&= \sum_{\substack{p=n+1 \\ p+n \text{ odd}}}^N \hat{u}_p^{(0)}.
+\end{align*}
+
+\textbf{3. 最后考虑第二个式子:}
+
+由上可知
+$$ \hat{u}_n^{(2)} = (2n+1) \sum_{\substack{p=n+1 \\ p+n \text{ odd}}}^N \hat{u}_p^{(1)}. $$
+将 $\hat{u}_p^{(1)} = (2p+1) \sum_{\substack{j=p+1 \\ j+p \text{ odd}}}^N \hat{u}_j^{(0)}$ 代入:
+$$ \hat{u}_n^{(2)} = (2n+1) \sum_{\substack{p=n+1 \\ p+n \text{ odd}}}^N (2p+1) \sum_{\substack{j=p+1 \\ j+p \text{ odd}}}^N \hat{u}_j^{(0)}. $$
+交换求和顺序:
+外部求和指标 $p$ 从 $n+1$ 开始, 步长为 2. 内部指标 $j$ 从 $p+1$ 开始, 步长为 2.
+这意味着 $j$ 的范围是从 $n+2$ 到 $N$, 且 $j$ 与 $n$ 同奇偶 (即 $j+n$ 为偶数).
+对于固定的 $j$, $p$ 的范围是从 $n+1$ 到 $j-1$, 步长为 2.
+\begin{align*}
+\hat{u}_n^{(2)} &= (2n+1) \sum_{\substack{j=n+2 \\ j+n \text{ even}}}^N \left( \sum_{\substack{p=n+1 \\ \text{step}=2}}^{j-1} (2p+1) \right) \hat{u}_j^{(0)}.
+\end{align*}
+利用等差数列求和 $\sum_{k} (2k+1) = k(k+1) + C$:
+中间的求和项为 $\frac{1}{2} [j(j+1) - n(n+1)].$ (基于 $p$ 的求和结果).
+最终得到:
+$$ \hat{u}_n^{(2)} = \frac{2n+1}{2} \sum_{\substack{j=n+2 \\ j+n \text{ even}}}^N [j(j+1) - n(n+1)] \hat{u}_j^{(0)}. $$
+
+
+\subsection*{3.(a)}
+易知
+$$u'(x) = L'_{N+1}(x) - L'_{N-1}(x) = (2N+1)L_N(x), $$
+故
+$$\|u'\|^2 = (2N+1)^2 \|L_N\|^2 = (2N+1)^2 \cdot \frac{2}{2N+1} = 2(2N+1),$$
+即题中不等式右端$cN^{1/2}\|u'\| \sim c N^{1/2} \cdot N^{1/2} = cN.$ 现考虑不等式左端.
+
+(1) 首先说明对于Legendre-Gauss-Lobatto (LGL) 插值, 题中结论不成立:
+
+LGL 点 $\{x_j\}_{j=0}^N$ 是 $(1-x^2)L'_N(x)$ 的根, 故
+$$u(x_j) = L_{N+1}(x_j) - L_{N-1}(x_j) = (1-x_j^2)L'_N(x_j) = 0, \quad \forall j=0, \dots, N.$$
+由于 $I_N u$ 是一个次数 $\le N$ 的多项式,且在 $N+1$ 个点上为 0, 因此 $I_N u \equiv 0.$
+此时
+$$\|I_N u - u\|_{H^1} = \|-u\|_{H^1} = \|u\|_{H^1} = \|u\| + \|u'\| \sim \frac{1}{\sqrt{N}} + \sqrt{N},$$
+因此题中不等式不成立.
+(2) 其次, 如果 $I_N$ 是 Legendre-Gauss (LG) 插值, 则结论成立:
+
+LG 点 $\{y_j\}_{j=0}^N$ 是 $L_{N+1}(x)$ 的根.因此:$$u(y_j) = L_{N+1}(y_j) - L_{N-1}(y_j) = -L_{N-1}(y_j), \quad j=0, \dots, N.$$
+由于$deg(I_N u) \leq N, deg(-L_{N-1}(x))\leq N-1,$ 故
+$$I_N u(x) = -L_{N-1}(x),$$
+$$I_N u - u = -L_{N-1} - (L_{N+1} - L_{N-1}) = -L_{N+1}.$$
+从而
+$$
+\|I_N u - u\|_{H^1} = \|L_{N+1}\| + \|L'_{N+1}\|.$$
+前一项 $\|L_{N+1}\| \sim \frac{1}{\sqrt{N}}$ , 后一项由于
+$$L'_{N+1} = \sum_{k=0, k+N+1 \text{ odd}}^{N} (2k+1)L_k,$$
+$$\|L'_{N+1}\|^2 = \sum (2k+1)^2 \|L_k\|^2 = \sum (2k+1)^2 \frac{2}{2k+1} = \sum 2(2k+1) \approx 2 \sum_{k=1}^{N/2} 4k \approx 2N^2.$$
+所以:$$\|I_N u - u\|_{H^1} \sim C \cdot N.$$
+
+\subsection*{3.(b)}
+以下证明过程与书上引理3.4类似.
+令$ x = \cos \theta, \hat{u}(\theta) = u(\cos \theta).$ 由于$I_N u(\pm 1)=0$, 故$\frac{(I_N u(x))^2}{1-x^2}$是多项式, 因此
+\begin{align*}
+\| I_N u \|_{w^{-1, -1}}^2 &= \int_{-1}^1 \frac{(I_N u)^2}{1-x^2} \, dx = \sum_{j=0}^N \frac{(I_N u(x_j))^2}{1-x_j^2} w_j = \sum_{j=0}^N \frac{u^2(x_j)}{1-x_j^2} w_j = \sum_{j=1}^{N-1} \frac{u^2(x_j)}{1-x_j^2} w_j \\
+&\lesssim \sum_{j=1}^{N-1} \frac{\hat{u}(\theta_j)^2}{\sin^2 \theta_j} \cdot N^{-1} \sin \frac{\theta_j}{2} \cos \frac{\theta_j}{2} \\
+&\lesssim N^{-1} \sum_{j=1}^{N-1} \hat{u}^2(\theta_j) (\sin \theta_j)^{-1} \\
+&\lesssim N^{-1} \sum_{j=1}^{N-1} \frac{1}{\sin \theta_j} \max_{\theta \in K_j} |\hat{u}(\theta)|^2,
+\end{align*}
+其中每个 $\theta_j$ 都位于某个区间 $K_j $ 内, $\theta_j \in K_j \subset [a_0, a_1] \subset (0, \pi)$,其中 $a_0 = \frac{O(1)}{N-1}$, $a_1 = \frac{N\pi + O(1)}{N-1}$, 并且$K_j$的区间长度等于 $\frac{1}{N-1}$.
+由于
+\begin{align*}
+\max_{\theta \in K_j} |\hat{u}(\theta)| &\lesssim \sqrt{N-1} \| \hat{u} \|_{L^2(K_j)} + \frac{1}{\sqrt{N^{-1}}} \| \partial_\theta \hat{u} \|_{L^2(K_j)}, \\
+\max_{\theta \in K_j} |\hat{u}(\theta)|^2 &\lesssim \left( \sqrt{N-1} \| \hat{u} \|_{L^2(K_j)} + \frac{1}{\sqrt{N-1}} \| \partial_\theta \hat{u} \|_{L^2(K_j)} \right)^2 \\
+&\lesssim (N-1) \| \hat{u} \|_{L^2(K_j)}^2 + \frac{1}{N-1} \| \partial_\theta \hat{u} \|_{L^2(K_j)}^2,
+\end{align*}
+故
+\begin{align*}
+\| I_N u \|_{w^{-1, -1}}^2 &\lesssim \sum_{j=1}^{N-1} \frac{1}{\sin \theta_j} \| \hat{u} \|_{L^2(K_j)}^2 + \sum_{j=1}^{N-1} \frac{1}{\sin \theta_j} N^{-2} \| \partial_\theta \hat{u} \|_{L^2(K_j)}^2 \\
+&\lesssim \sum_{j=1}^{N-1} \int_{K_j} \frac{|\hat{u}|^2}{\sin \theta} \, d\theta + N^{-2} \sum_{j=1}^{N-1} \int_{K_j} \frac{|\partial_\theta \hat{u}|^2}{\sin \theta} \, d\theta \\
+&\lesssim \int_0^\pi \frac{|\hat{u}|^2}{\sin \theta} \, d\theta + N^{-2} \int_0^\pi \frac{|\partial_\theta \hat{u}|^2}{\sin \theta} \, d\theta,
+\end{align*}
+因为
+\begin{align*}
+\int_0^\pi \frac{|\hat{u}|^2}{\sin \theta} \, d\theta &\overset{x=-\cos\theta}{=\joinrel=\joinrel=\joinrel=} \int_{-1}^1 \frac{|u(x)|^2}{1-x^2} \, dx = \| u \|_{w^{-1, -1}}^2, \\
+\int_0^\pi \frac{|\partial_\theta \hat{u}|^2}{\sin \theta} \, d\theta &\overset{x=-\cos\theta}{=\joinrel=\joinrel=\joinrel=} \int_{-1}^1 |\partial_x u|^2 \, dx = \| \partial_x u \|^2,
+\end{align*}
+故
+$$\| I_N u \|_{w^{-1, -1}}^2 \lesssim \| u \|_{w^{-1, -1}}^2 + N^{-2} \| \partial_x u \|^2. $$
+整理知原题结论成立.
+\subsection*{4.(a)}
+考虑如下两点边值问题:
+\begin{equation}
+    u(x) - u''(x) = f(x), \quad -1 < x < 1; \quad u(-1)=0, \quad u(1)=1.
+    \label{eq:pde_4a}
+\end{equation}
+其中真解 $u(x)$ 定义为:
+\begin{equation}
+    u(x) = \begin{cases} 
+        0, & x \in [-1, 0], \\
+        x^\gamma, & x \in (0, 1].
+    \end{cases}
+\end{equation}
+这里 $\gamma \in \{4, 5, 6\}$.右端项 $f(x)$ 由 $u(x)$ 导出.要求使用 Legendre-Galerkin 方法求解,取 $N = 2^i, i=4,\dots,9$,并分析误差 $\|u - u_N\|_{N,w}$ 的收敛性.
+
+\textbf{1. 齐次化边界条件}
+
+由于原问题边界条件非齐次,令数值解 $u_N(x)$ 为:
+\begin{equation}
+    u_N(x) = v_N(x) + u_b(x).
+\end{equation}
+其中 $u_b(x) = \frac{x+1}{2}$ 是满足边界条件的提升函数,$v_N(x)$ 满足齐次边界条件 $v_N(\pm 1) = 0$.将 $u_N$ 代入方程 \eqref{eq:pde_4a},并注意到 $u_b''(x)=0$,得到关于 $v_N$ 的方程:
+\begin{equation}
+    v_N - v_N'' = f - u_b.
+\end{equation}
+
+\textbf{2. 变分形式与离散化}
+
+选取逼近空间 $V_N = \text{span}\{\phi_0, \dots, \phi_{N-2}\}$,其中
+\begin{equation}
+    \phi_k(x) = L_k(x) - L_{k+2}(x), \quad k=0, 1, \dots, N-2.
+\end{equation}
+易知 $\phi_k(\pm 1) = 0$.Legendre-Galerkin 方法的弱形式为:寻找 $v_N \in V_N$,使得对所有 $\phi_j \in V_N$:
+\begin{equation}
+    (v_N, \phi_j) + (v_N', \phi_j') = (I_N f - u_b, \phi_j).
+\end{equation}
+令 $v_N(x) = \sum_{k=0}^{N-2} \hat{v}_k \phi_k(x)$,代入上式得到线性方程组:
+\begin{equation}
+    (\mathbf{M} + \mathbf{S}) \mathbf{\hat{v}} = \mathbf{F}.
+\end{equation}
+其中:
+\begin{itemize}
+    \item 矩阵 $\mathbf{S}$ ($S_{jk} = (\phi_k', \phi_j')$) 为对角阵:
+    \begin{equation}
+        S_{jk} = (4k+6)\delta_{jk}.
+    \end{equation}
+    \item 矩阵 $\mathbf{M}$ ($M_{jk} = (\phi_k, \phi_j)$) 为对称五对角阵,非零元素为:
+    \begin{equation}
+        M_{kk} = \frac{2}{2k+1} + \frac{2}{2k+5}, \quad M_{k, k+2} = M_{k+2, k} = -\frac{2}{2k+5}.
+    \end{equation}
+    \item 向量 $\mathbf{F}$:
+    \begin{equation}
+        F_j = \int_{-1}^1 I_N f(x)\phi_j(x)dx - \int_{-1}^1 u_b(x)\phi_j(x)dx.
+    \end{equation}
+\end{itemize}
+
+\textbf{3. 数值结果}
+
+图 \ref{fig:convergence} 展示了 $\log_{10}\|u - u_N\|_{N,w}$ 随 $\log_{10} N$ 的变化关系.
+
+谱方法的收敛速度通常取决于解的光滑性.对于本题,解析解 $u(x)$ 在 $x=0$ 处存在奇点.虽然 $u$ 连续,但在 $x=0$ 处的 $\gamma$ 阶导数不连续.具体来说,解属于 Sobolev 空间 $H^{\gamma + 1/2 - \epsilon}$.根据逼近理论,Legendre 谱方法的 $L^2$ 误差估计为:
+\begin{equation}
+    \|u - u_N\| \le C N^{-s} \|u\|_{H^s}.
+\end{equation}
+在此问题中,受限于 $x=0$ 处的正则性,预期的收敛阶为 $O(N^{-(\gamma + 0.5)})$. 数值实验结果(斜率约为 $-4.5, -5.5, -6.5$)与之吻合.
+
+\begin{figure}[H]
+    \centering
+    % 请确保当前目录下有生成的图片文件,例如命名为 convergence_plot.png
+    % 如果没有图片,请先运行代码生成或注释掉下面这行
+    \includegraphics[width=0.85\textwidth]{figures/result_4a.png}
+    \caption{Legendre-Galerkin 方法在不同 $\gamma$ 下的误差收敛曲线}
+    \label{fig:convergence}
+\end{figure}
+
+\subsection*{4.(b)}
+考虑如下变系数两点边值问题:
+\begin{equation}
+    x^2 u(x) - (e^x u'(x))' = f(x), \quad -1 < x < 1.
+    \label{eq:pde_4b}
+\end{equation}
+其中真解 $u(x)$ 定义为:
+\begin{equation}
+    u(x) = \begin{cases} 
+        0, & x \in [-1, 0], \\
+        x^\gamma, & x \in (0, 1].
+    \end{cases}
+\end{equation}
+考虑 $\gamma \in \{4, 5, 6\}$,并针对以下两种边界条件分别求解:
+\begin{itemize}
+    \item \textbf{情形 1:} $u(-1)=0, \quad u(1)=1$
+    \item \textbf{情形 2:} $u(-1) - u'(-1)=0, \quad u(1)=1$
+\end{itemize}
+题目要求使用 Chebyshev 配点法(强形式)进行求解,取 $N = 2^i, i=4,\dots,9$,并分析误差 $\|u - u_N\|_{N,w}$ 的收敛性.
+
+\textbf{1. 算子展开与离散}
+
+首先将方程 \eqref{eq:pde_4b} 中的微分项展开:
+\begin{equation}
+    x^2 u(x) - \left( e^x u'(x) + e^x u''(x) \right) = f(x).
+\end{equation}
+即:
+\begin{equation}
+    x^2 u - e^x u' - e^x u'' = f.
+    \label{eq:expanded}
+\end{equation}
+
+选取 Chebyshev-Gauss-Lobatto节点 $x_j = \cos(j\pi/N), j=0,\dots,N$. 记Chebyshev 微分矩阵为 $\mathbf{D}$.若 $\mathbf{u} = [u(x_0), \dots, u(x_N)]^T$,则节点处的一阶导数和二阶导数向量分别为 $\mathbf{u}' \approx \mathbf{D}\mathbf{u}$ 和 $\mathbf{u}'' \approx \mathbf{D}^2\mathbf{u}$.
+将方程 \eqref{eq:expanded} 写成矩阵形式:
+\begin{equation}
+    (\mathbf{X}^2 - \mathbf{E}\mathbf{D} - \mathbf{E}\mathbf{D}^2) \mathbf{u} = \mathbf{f}.
+\end{equation}
+其中 $\mathbf{X}$ 和 $\mathbf{E}$ 分别为对角元是 $x_j$ 和 $e^{x_j}$ 的对角矩阵.记总系数矩阵为 $\mathbf{A}_{global}$,则有线性系统 $\mathbf{A}_{global} \mathbf{u} = \mathbf{f}$.
+
+\textbf{2. 边界条件处理}
+
+在强形式配点法中,边界条件通过直接替换矩阵 $\mathbf{A}_{global}$ 的对应行来施加.
+
+\textbf{右边界 ($x_0 = 1$)}
+条件为 $u(1)=1$.
+在矩阵系统中,这是第一个未知量 $u_0$.我们将 $\mathbf{A}$ 的第 0 行替换为 $[1, 0, \dots, 0]$,并将右端项向量 $\mathbf{f}$ 的第 0 个元素设为 1.
+\begin{equation}
+    1 \cdot u_0 + 0 \cdot u_1 + \dots = 1.
+\end{equation}
+
+\textbf{情形 1:} $u(-1) = 0$.
+类似地,将第 $N$ 行替换为 $[0, \dots, 0, 1]$,右端项设为 0.
+
+\textbf{情形 2:} $u(-1) - u'(-1) = 0$.
+这里涉及到导数.离散形式为:
+\begin{equation}
+    u_N - \sum_{k=0}^N D_{N,k} u_k = 0.
+\end{equation}
+写成向量形式为 $(\mathbf{e}_N^T - \mathbf{D}_{N,:}) \mathbf{u} = 0$,其中 $\mathbf{e}_N$ 是第 $N$ 个分量为 1 的单位向量.
+我们在代码中将矩阵 $\mathbf{A}$ 的第 $N$ 行替换为向量:
+\begin{equation}
+    \mathbf{row}_N = [0, \dots, 0, 1] - [D_{N,0}, \dots, D_{N,N}].
+\end{equation}
+并将右端项 $f_N$ 设为 0.
+
+\textbf{3. 数值结果}
+
+利用 Python 代码计算并绘制了两种边界条件下,$\gamma=4,5,6$ 时的误差收敛曲线(图 \ref{fig:cheb_result}).
+
+\begin{figure}[H]
+    \centering
+    % 注意:请确保运行代码生成了此图片,或者使用代码解释器生成的图片
+    \includegraphics[width=\textwidth]{figures/result_4b.png} 
+    \caption{Chebyshev 配点法在不同边界条件下的误差收敛曲线}
+    \label{fig:cheb_result}
+\end{figure}
+
+其一, 代数收敛性. 结果显示误差呈代数收敛而非谱收敛(指数收敛).这是因为真解 $u(x)$ 在 $x=0$ 处存在奇异性.对于 Chebyshev 逼近,若函数 $u$ 的 $k$ 阶导数有界变差,则误差衰减率为 $O(N^{-k})$.
+\begin{itemize}
+        \item 当 $\gamma=4$ 时,$u^{(4)}(x)$ 在 $x=0$ 处不连续,故预期收敛阶为 4.实验结果吻合.
+\item 当 $\gamma=6$ 时,$u^{(6)}(x)$ 在 $x=0$ 处不连续,预期收敛阶为 6.实验结果吻合.
+    \end{itemize}
+
+其二, $\gamma=5$ 的特殊情况. 理论上应观察到 5 阶收敛,但实验数据接近 4 阶.这可能是由于强形式配点法中引入了二阶微分矩阵 $\mathbf{D}^2$,其条件数随 $N$ 增长较快($O(N^4)$),加之奇点 $x=0$ 正好位于区间中央,导致数值误差的主导项发生变化.
+
+其三, 边界条件的影响. 对比情形 1 和情形 2,收敛曲线的斜率和误差量级几乎一致.这说明通过“行替换”的方式处理 Robin 边界条件($u - u' = 0$)是非常有效的,不会破坏 Chebyshev 方法的精度.
+
+\subsection*{5.(a)}
+显然.
+
+\subsection*{5.(b)}
+
+\textbf{1. 算子分裂}
+
+将 Fisher 方程 $\partial_t u = \partial_{xx} u + u(1-u)$ 分裂为非线性部分 $\mathcal{R}$ 和线性部分 $\mathcal{D}$:
+\begin{align*}
+    \mathcal{R}: \quad & \partial_t u = u(1-u), \\
+    \mathcal{D}: \quad & \partial_t u = \partial_{xx} u.
+\end{align*}
+时间步长为 $\tau$,从 $t_n$ 到 $t_{n+1}$ 的二阶 Strang 分裂格式为:
+\begin{equation}
+    u^{n+1} = \mathcal{S}_{\mathcal{R}}(\tau/2) \circ \mathcal{S}_{\mathcal{D}}(\tau) \circ \mathcal{S}_{\mathcal{R}}(\tau/2) u^n.
+\end{equation}
+其中 $\mathcal{S}_{\mathcal{R}}(t)$ 为反应步的精确解算子:
+\begin{equation}
+    u(t) = \frac{u_0}{u_0 + (1-u_0)e^{-t}}.
+\end{equation}
+
+\textbf{2. 空间离散}
+
+对于扩散步 $\partial_t u = \partial_{xx} u, \ x \in [-L, L]$,作变量代换 $x = L\xi, \ \xi \in [-1, 1]$.
+令 $u(\xi, t) = v(\xi, t) + u_B(\xi)$,其中 $u_B(\xi) = \frac{1-\xi}{2}$ 用于处理非齐次边界条件,使得 $v(\pm 1, t) = 0$.
+选取基函数 $\phi_k(\xi) = L_k(\xi) - L_{k+2}(\xi)$,令 $v_N(\xi, t) = \sum_{k=0}^{N-2} \hat{v}_k(t) \phi_k(\xi)$.
+代入方程并利用 Galerkin 投影,得到线性系统:
+\begin{equation}
+    M \frac{d\hat{\mathbf{v}}}{dt} = -\frac{1}{L^2} S \hat{\mathbf{v}}.
+\end{equation}
+其中 $M_{kj} = (\phi_j, \phi_k)$ ,$S_{kj} = (\phi'_j, \phi'_k)$.
+利用 Crank-Nicolson 格式进行时间离散:
+\begin{equation}
+    \left( M + \frac{\tau}{2L^2}S \right) \hat{\mathbf{v}}^{} = \left( M - \frac{\tau}{2L^2}S \right) \hat{\mathbf{v}}^*,
+\end{equation}
+其中 $\hat{\mathbf{v}}^*$ 为反应半步后的解在谱空间中的投影系数.
+\newpage
+\textbf{3. 数值结果}
+
+取参数 $N=128, L=100, \tau=10^{-3}$.
+数值解与精确解 $u_{exact}(x,t) = [1 + \exp((x/\sqrt{6}) - (5/6)t)]^{-2}$ 的最大误差 ($L^\infty$) 如下表所示:
+\begin{table}[H]
+    \centering
+    \caption{Fisher 方程数值解与精确解的最大误差}
+    \label{tab:fisher_error}
+    \begin{tabular}{cc}
+        \toprule
+        Time ($t$) & Max Error ($L^\infty$) \\
+        \midrule
+        1 & $2.91 \times 10^{-5}$ \\
+        2 & $1.49 \times 10^{-5}$ \\
+        3 & $2.79 \times 10^{-5}$ \\
+        4 & $4.81 \times 10^{-5}$ \\
+        5 & $1.15 \times 10^{-4}$ \\
+        6 & $3.21 \times 10^{-4}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+各时间点的数值解如图所示,波形由 $x \approx 0$ 处向右平稳传播,与 Fisher 方程行波解性质一致.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fisher_result_b.png}
+    \caption{Fisher 方程在 $t=1, \dots, 6$ 时刻的数值解}
+\end{figure}
+
+\subsection*{5.(c)}
+结果如下图所示.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fisher_result_c1.png}
+    \caption{Fisher 方程在第一个初值条件下的动力学}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fisher_result_c2.png}
+    \caption{Fisher 方程在第二个初值条件下的动力学}
+\end{figure}
+
+\subsection*{6.(a)}
+考虑定义在 $\Omega = (-1, 1)^2$ 上的二维可分偏微分方程:
+\begin{equation}
+    a u_{xx} + b u_x + c u + d u_{yy} + e u_y + f u = g(x, y).
+    \label{eq:pde_6a}
+\end{equation}
+边界条件为:
+\begin{itemize}
+    \item $x$ 方向 (Neumann): $\partial_x u(\pm 1, y) = 0, \quad y \in [-1, 1]$
+    \item $y$ 方向 (Dirichlet): $u(x, \pm 1) = 0, \quad x \in [-1, 1]$
+\end{itemize}
+其中系数 $a, \dots, f$ 均为常数.
+
+\textbf{1. 基函数的构造}
+
+为了利用 Galerkin 方法,我们需要构造满足相应边界条件的基函数空间.令 $L_k(x)$ 为 $k$ 次 Legendre 多项式.
+
+\textbf{$x$ 方向}:
+   构造基函数 $\phi_k(x)$ 满足 $\phi_k'(\pm 1) = 0$:
+   \begin{equation}
+       \phi_k(x) = L_k(x) - \frac{k(k+1)}{(k+2)(k+3)} L_{k+2}(x), \quad k=0, 1, \dots, N-2.
+   \end{equation}
+   
+\textbf{$y$ 方向}:
+   构造基函数 $\psi_k(y)$ 满足 $\psi_k(\pm 1) = 0$:
+   \begin{equation}
+       \psi_k(y) = L_k(y) - L_{k+2}(y), \quad k=0, 1, \dots, N-2.
+   \end{equation}
+
+\textbf{2. 离散化格式}
+
+设数值解 $u_N(x, y) = \sum_{i=0}^{N-2} \sum_{j=0}^{N-2} u_{ij} \phi_i(x) \psi_j(y)$.代入方程并对测试函数 $\phi_m(x) \psi_n(y)$ 做 Galerkin 投影,可得 Sylvester 矩阵方程:
+\begin{equation}
+    S_x U M_y^T + M_x U S_y^T = G.
+\end{equation}
+其中 $U$ 是待求系数矩阵, $G_{mn} = (g, \phi_m \psi_n)$, $(M_y)_{mn} = \int_{-1}^1 \psi_m(y) \psi_n(y) dy$, $(S_x)_{mn} = \int_{-1}^1 \left( a \phi_n''(x) + b \phi_n'(x) + c \phi_n(x) \right) \phi_m(x) dx$.
+
+\textbf{3. 系数矩阵的计算}
+
+易知
+\begin{equation}
+    \int_{-1}^1 L_m(x) L_n(x) dx = h_m \delta_{mn}, \quad \text{其中 } h_m = \frac{2}{2m+1}.
+\end{equation}
+
+故
+\begin{align}
+    (M_y)_{mn} &= \int_{-1}^1 \left( L_m(y) - L_{m+2}(y) \right) \left( L_n(y) - L_{n+2}(y) \right) dy \nonumber \\
+    &= \int L_m L_n - \int L_m L_{n+2} - \int L_{m+2} L_n + \int L_{m+2} L_{n+2} \\
+    &= h_m \delta_{mn} - h_m \delta_{m, n+2} - h_{m+2} \delta_{m+2, n} + h_{m+2} \delta_{m, n}.
+\end{align}
+
+选取 Legendre-Gauss 节点 $x_q$ 和对应权重 $w_q$, $(S_x)_{mn}$可被精确离散为有限和:
+\begin{equation}
+    (S_x)_{mn} = \sum_{q=0}^{Q-1} w_q \left[ a \phi_n''(x_q) + b \phi_n'(x_q) + c \phi_n(x_q) \right] \phi_m(x_q).
+\end{equation}
+
+\textbf{4. 结果分析}
+
+为了验证算法的准确性和收敛阶,我们设计一个满足边界条件的解析解:
+\begin{equation}
+    u_{exact}(x, y) = \cos(\pi x) \cos\left(\frac{\pi}{2} y\right).
+\end{equation}
+该解满足 $x=\pm 1$ 处的 Neumann 条件(导数为 0)和 $y=\pm 1$ 处的 Dirichlet 条件(值为 0).令$a=1, b=0.5, c=1, d=1, e=-0.5, f=2$.
+图 \ref{fig:convergence_a} 展示了随着多项式截断阶数 $N$ 的增加,最大误差 ($L^\infty$ error) 的变化情况.可以看出,误差在半对数坐标系下呈线性下降,体现了谱收敛特性.当 $N \ge 24$ 时,误差已达到机器精度 ($10^{-14}$ 量级).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/Q6a_error_convergence.png}
+    \caption{误差随截断阶数 $N$ 的收敛曲线 (semilog坐标)}
+    \label{fig:convergence_a}
+\end{figure}
+
+\subsection*{6.(b)}
+\textbf{1. 基函数的构造}
+
+基函数的构造与 6(a) 完全一致.
+
+\textbf{2. 离散化格式}
+
+设数值解 $u_N(x, y) = \sum_{i, j} u_{ij} \phi_i(x) \psi_j(y)$.尽管系数 $a,b,c$ 依赖于 $x$,但算子仍然可以分离为 $L = \mathcal{L}_x + \mathcal{L}_y$.Galerkin 投影后的矩阵方程形式依然为 Sylvester 方程:
+\begin{equation}
+    S_x U M_y^T + M_x U S_y^T = G.
+\end{equation}
+其中 $y$ 方向的矩阵 $M_y, S_y$ 与常系数情况完全相同.
+主要区别在于 $x$ 方向的变系数刚度矩阵:
+\begin{equation}
+    (S_x)_{mi} = \int_{-1}^1 \left[ a(x)\phi_i''(x) + b(x)\phi_i'(x) + c(x)\phi_i(x) \right] \phi_m(x) dx.
+\end{equation}
+
+\textbf{3. 变系数矩阵的计算}
+
+对于变系数积分,解析计算较为困难且不通用.我们采用 Gauss-Legendre 数值积分进行高精度近似.
+选取 $Q$ 个积分节点 $x_q$ 和权重 $w_q$(取 $Q \ge N + k$,以处理系数函数的非线性),则 $(S_x)_{mi}$ 计算如下:
+\begin{equation}
+    (S_x)_{mi} \approx \sum_{q=0}^{Q-1} w_q \underbrace{\left[ a(x_q)\phi_i''(x_q) + b(x_q)\phi_i'(x_q) + c(x_q)\phi_i(x_q) \right]}_{\text{算子在节点上的值}} \phi_m(x_q).
+\end{equation}
+
+\textbf{4. 结果分析}
+
+设定系数为:
+$$ a(x) = 2 + \sin(x), \quad b(x) = x, \quad c(x) = e^{x/2}, d=e=f=1. $$
+并构造精确解:
+\begin{equation}
+    u_{exact}(x, y) = \sin^2(\pi x) \cos\left(\frac{\pi}{2} y\right).
+\end{equation}
+验证可见:$\partial_x u|_{x=\pm 1} \propto \sin(2\pi)=0$, $u|_{y=\pm 1} \propto \cos(\pm \pi/2)=0$.
+图 \ref{fig:convergence_b} 展示了误差收敛曲线.结果表明,即使引入变系数,Legendre-Galerkin 方法依然保持了谱收敛特性,误差随着 $N$ 的增加呈指数级衰减.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/Q6b_error_convergence.png}
+    \caption{变系数方程误差收敛曲线 (semilog坐标)}
+    \label{fig:convergence_b}
+\end{figure}
+
+\end{document}
