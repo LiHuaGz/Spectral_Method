@@ -12,7 +12,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{url} % 支持URL链接
-\usepackage[american]{babel} % 保证英文单词断行按音节切割
+%\usepackage[american]{babel} % 保证英文单词断行按音节切割
 \usepackage{microtype} % 调整字间距, 改善排版效果
 \usepackage{fancyhdr} % 添加页眉页脚包
 
@@ -21,6 +21,12 @@
 \fancyhf{} % 清除所有页眉页脚
 \fancyfoot[C]{\thepage} % 在页脚中央显示页码
 \renewcommand{\headrulewidth}{0pt} % 去掉页眉分割线
+
+% 将图表标题改为中文
+\ctexset{
+  figurename=图,
+  tablename=表
+}
 
 % 重新定义 subsection* 命令, 使后面段落自动缩进
 \makeatletter
@@ -35,11 +41,16 @@
 \setlist[enumerate, 1]{label=\arabic*., leftmargin=1.5em,  labelsep=0.5em,  align=left}
 
 % 标题部分
-\title{偏微分方程数值解: 第二次作业}
+\title{偏微分方程数值解: 第三次作业}
 \author{林立康 \quad 25210180078}
 \date{\today}
 
 \begin{document}
+
+% 确保图表标题使用中文
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
 \maketitle
 
 相关代码可从 \url{https://github.com/LiHuaGz/Spectral_Method.git} 获取.
@@ -185,6 +196,36 @@ $$ \hat{u}_n^{(2)} = (2n+1) \sum_{\substack{p=n+1 \\ p+n \text{ odd}}}^N (2p+1) 
 最终得到:
 $$ \hat{u}_n^{(2)} = \frac{2n+1}{2} \sum_{\substack{j=n+2 \\ j+n \text{ even}}}^N [j(j+1) - n(n+1)] \hat{u}_j^{(0)}. $$
 
+\subsection*{2.(a)(b)}
+
+本文将正交多项式的根转化为对称三对角矩阵的特征值问题求解.
+\begin{itemize}
+    \item \textbf{LG格点}：为 $(N+1)$ 阶 Legendre 多项式 $P_{N+1}(x)$ 的零点.由递推关系构造 $(N+1)\times(N+1)$ 的三对角矩阵 $J_{LG}$,其非对角元素为 $\beta_i = \sqrt{\frac{i^2}{4i^2-1}}$.节点即为 $J_{LG}$ 的特征值.
+    \item \textbf{LGL格点}：包含端点 $\{-1, 1\}$ 以及 $P'_N(x)$ 的 $N-1$ 个零点.内部节点对应于 Jacobi 多项式 $P_{N-1}^{(1,1)}(x)$ 的零点,对应矩阵 $J_{LGL}$ 的大小为 $(N-1)\times(N-1)$,非对角元素为 $\beta_i = \sqrt{\frac{i(i+2)}{(2i+1)(2i+3)}}$.
+\end{itemize}
+
+为了验证程序的正确性,将计算结果与 \texttt{numpy.polynomial.legendre} 标准库及通过多项式求导直接求根的结果进行了对比.在 $N=50$ 的情况下,最大绝对误差如下表所示,误差均在机器精度 ($10^{-15}$) 量级,验证了算法实现的准确性.
+
+\begin{table}[H]
+    \centering
+    \caption{数值解与参考解的最大绝对误差 ($N=50$)}
+    \begin{tabular}{lcc}
+        \hline
+        类型 & 节点误差 & 权重误差 \\
+        \hline
+        Legendre-Gauss (LG) & $3.33 \times 10^{-16}$ & $3.05 \times 10^{-15}$ \\
+        Legendre-Gauss-Lobatto (LGL) & $3.11 \times 10^{-15}$ & $1.60 \times 10^{-16}$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+图 \ref{fig:nodes_comp} 展示了 $N=15$ 时 LG 与 LGL 节点的分布情况.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/Q2_LG_LGL_nodes.png}
+    \caption{Legendre-Gauss (LG) 与 Legendre-Gauss-Lobatto (LGL) 节点分布对比 ($N=15$)}
+    \label{fig:nodes_comp}
+\end{figure}
 
 \subsection*{3.(a)}
 易知
@@ -410,40 +451,52 @@ $$\| I_N u \|_{w^{-1, -1}}^2 \lesssim \| u \|_{w^{-1, -1}}^2 + N^{-2} \| \partia
 \subsection*{5.(a)}
 显然.
 
-\subsection*{5.(b)}
+\subsection*{5.(b) 数值求解方案}
 
-\textbf{1. 算子分裂}
+\subsubsection*{1. 算子分裂 (Operator Splitting)}
 
-将 Fisher 方程 $\partial_t u = \partial_{xx} u + u(1-u)$ 分裂为非线性部分 $\mathcal{R}$ 和线性部分 $\mathcal{D}$:
-\begin{align*}
+考虑 Fisher 方程 $\partial_t u = \partial_{xx} u + u(1-u)$.我们将其分裂为非线性反应部分 $\mathcal{R}$ 和线性扩散部分 $\mathcal{D}$：
+\begin{align}
     \mathcal{R}: \quad & \partial_t u = u(1-u), \\
     \mathcal{D}: \quad & \partial_t u = \partial_{xx} u.
-\end{align*}
-时间步长为 $\tau$,从 $t_n$ 到 $t_{n+1}$ 的二阶 Strang 分裂格式为:
+\end{align}
+设时间步长为 $\tau$,从 $t_n$ 到 $t_{n+1}$ 采用二阶 Strang 分裂格式：
 \begin{equation}
-    u^{n+1} = \mathcal{S}_{\mathcal{R}}(\tau/2) \circ \mathcal{S}_{\mathcal{D}}(\tau) \circ \mathcal{S}_{\mathcal{R}}(\tau/2) u^n.
+    u^{n+1} = \mathcal{S}_{\mathcal{R}}(\tau/2) \circ \mathcal{S}_{\mathcal{D}}(\tau) \circ \mathcal{S}_{\mathcal{R}}(\tau/2) u^n,
 \end{equation}
-其中 $\mathcal{S}_{\mathcal{R}}(t)$ 为反应步的精确解算子:
+其中 $\mathcal{S}_{\mathcal{R}}(t)$ 为反应步的精确解算子.对于初值问题 $\frac{\mathrm{d} u}{\mathrm{d} t} = u(1-u), \, u(0)=u_0$,其解析解为：
 \begin{equation}
-    u(t) = \frac{u_0}{u_0 + (1-u_0)e^{-t}}.
+    u(t) = \frac{u_0}{u_0 + (1-u_0)\mathrm{e}^{-t}}.
 \end{equation}
 
-\textbf{2. 空间离散}
+\subsubsection*{2. 空间离散与边界处理}
 
-对于扩散步 $\partial_t u = \partial_{xx} u, \ x \in [-L, L]$,作变量代换 $x = L\xi, \ \xi \in [-1, 1]$.
-令 $u(\xi, t) = v(\xi, t) + u_B(\xi)$,其中 $u_B(\xi) = \frac{1-\xi}{2}$ 用于处理非齐次边界条件,使得 $v(\pm 1, t) = 0$.
-选取基函数 $\phi_k(\xi) = L_k(\xi) - L_{k+2}(\xi)$,令 $v_N(\xi, t) = \sum_{k=0}^{N-2} \hat{v}_k(t) \phi_k(\xi)$.
-代入方程并利用 Galerkin 投影,得到线性系统:
+对于扩散步 $\partial_t u = \partial_{xx} u, \ x \in [-L, L]$,作坐标变换 $\xi = x/L, \ \xi \in [-1, 1]$,方程变为：
 \begin{equation}
-    M \frac{d\hat{\mathbf{v}}}{dt} = -\frac{1}{L^2} S \hat{\mathbf{v}}.
+    \partial_t u = \frac{1}{L^2} \partial_{\xi\xi} u.
 \end{equation}
-其中 $M_{kj} = (\phi_j, \phi_k)$ ,$S_{kj} = (\phi'_j, \phi'_k)$.
-利用 Crank-Nicolson 格式进行时间离散:
+为处理非齐次边界条件 $u(-1,t)=1, u(1,t)=0$,引入边界函数 $u_B(\xi) = \frac{1-\xi}{2}$.
+令 $u(\xi, t) = v(\xi, t) + u_B(\xi)$,则 $v$ 满足齐次 Dirichlet 边界条件 $v(\pm 1, t) = 0$.
+注意到 $\partial_{\xi\xi} u_B = 0$,故 $v$ 满足的方程仍为 $\partial_t v = \frac{1}{L^2} \partial_{\xi\xi} v$.
+
+选取 Legendre-Galerkin 基函数 $\phi_k(\xi) = L_k(\xi) - L_{k+2}(\xi)$,将数值解展开为：
 \begin{equation}
-    \left( M + \frac{\tau}{2L^2}S \right) \hat{\mathbf{v}}^{} = \left( M - \frac{\tau}{2L^2}S \right) \hat{\mathbf{v}}^*,
+    v_N(\xi, t) = \sum_{k=0}^{N-2} \hat{v}_k(t) \phi_k(\xi).
 \end{equation}
-其中 $\hat{\mathbf{v}}^*$ 为反应半步后的解在谱空间中的投影系数.
-\newpage
+代入方程并作 Galerkin 投影,得到线性系统：
+\begin{equation}
+    \mathbf{M} \frac{\mathrm{d}\hat{\boldsymbol{v}}}{\mathrm{d}t} = -\frac{1}{L^2} \mathbf{S} \hat{\boldsymbol{v}},
+\end{equation}
+其中刚度矩阵与质量矩阵元素分别为：
+\begin{equation}
+    M_{kj} = (\phi_j, \phi_k)_{L^2}, \quad S_{kj} = (\phi'_j, \phi'_k)_{L^2}.
+\end{equation}
+利用 Crank-Nicolson 格式进行时间离散,需在每一步求解如下线性方程组：
+\begin{equation}
+    \left( \mathbf{M} + \frac{\tau}{2L^2}\mathbf{S} \right) \hat{\boldsymbol{v}}^{n+1} = \left( \mathbf{M} - \frac{\tau}{2L^2}\mathbf{S} \right) \hat{\boldsymbol{v}}^n.
+\end{equation}
+求解得到 $\hat{\boldsymbol{v}}^{n+1}$ 后,通过 $u^{n+1} = v_N^{n+1} + u_B$ 恢复物理空间解,再进行下一步的非线性更新.
+
 \textbf{3. 数值结果}
 
 取参数 $N=128, L=100, \tau=10^{-3}$.
@@ -478,12 +531,12 @@ $$\| I_N u \|_{w^{-1, -1}}^2 \lesssim \| u \|_{w^{-1, -1}}^2 + N^{-2} \| \partia
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/fisher_result_c1.png}
-    \caption{Fisher 方程在第一个初值条件下的动力学}
+    \caption{Fisher 方程在初值条件$u(x,0) = \frac{1}{2} \left[ 1 - \tanh(x) \right]$下的动力学}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/fisher_result_c2.png}
-    \caption{Fisher 方程在第二个初值条件下的动力学}
+    \caption{Fisher 方程在初值条件$u(x,0) = \frac{1}{\left[1+e^{(x+5)/2}\right]^{2}} \frac{1}{\left[1+e^{x/3}\right]^{2}} \frac{1}{\left[1+e^{(x-5)/4}\right]^{2}}$下的动力学}
 \end{figure}
 
 \subsection*{6.(a)}

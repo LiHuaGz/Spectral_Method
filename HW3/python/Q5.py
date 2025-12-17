@@ -50,11 +50,9 @@ def ic_case_c2(x):
     term2 = (1 + np.exp(x / 3))**2
     term3 = (1 + np.exp((x - 5) / 4))**2
     # 避免除以极大的数 (即结果为0)
-    # 虽然 numpy float 处理除零通常没问题，但为了稳健
     with np.errstate(over='ignore'):
         denom = term1 * term2 * term3
         val = 1.0 / denom
-    # 如果 denom 溢出为 inf， val 自动为 0，符合物理
     return val
 
 # ==========================================
@@ -126,7 +124,7 @@ def run_fisher_solver(initial_func, exact_func=None, task_name="test", T_max=6.0
     # --- 时间步进 ---
     for step in range(1, steps + 1):
         # 1. 反应半步
-        u = np.maximum(u, 0)
+        #u = np.maximum(u, 0)
         dt_half = tau / 2.0
         exp_fac = np.exp(-dt_half)
         u = u / (u + (1 - u) * exp_fac)
@@ -140,7 +138,7 @@ def run_fisher_solver(initial_func, exact_func=None, task_name="test", T_max=6.0
         u = v_next + u_bound
         
         # 3. 反应半步
-        u = np.maximum(u, 0)
+        #u = np.maximum(u, 0)
         u = u / (u + (1 - u) * exp_fac)
         
         curr_t += tau
@@ -159,27 +157,43 @@ def run_fisher_solver(initial_func, exact_func=None, task_name="test", T_max=6.0
                         errors.append((t_int, err))
                         print(f"Time {t_int}: Error = {err:.4e}")
 
-    # --- 绘图 (无标题) ---
+    # ==========================================
+    # 绘图部分 (黑白优化版)
+    # ==========================================
     plt.figure(figsize=(10, 6))
     
-    # 按时间排序
+    # 定义线型循环列表，确保在黑白图中有区分度
+    # 顺序：实线, 虚线, 点划线, 疏点线, 长虚线, 疏点划线
+    bw_styles = ['-', '--', '-.', ':', (0, (5, 10)), (0, (3, 1, 1, 1))]
+    
     sorted_times = sorted(sols.keys())
-    colors = plt.cm.viridis(np.linspace(0, 1, len(sorted_times)))
     
-    for t, color in zip(sorted_times, colors):
-        # 样式微调
+    for i, t in enumerate(sorted_times):
+        # 1. 默认样式
+        style = bw_styles[i % len(bw_styles)]
+        linewidth = 1.5
+        label = f't={t}'
+        
+        # 2. 特殊处理初始时刻 (t=0)
+        # 约定：初始时刻通常用 点线(:) 或 较粗的线 表示
         if t == 0:
-            ls, lw, lbl = '--', 2.0, f't={t} (Initial)'
-        else:
-            ls, lw, lbl = '-', 1.5, f't={t}'
-            
-        plt.plot(x, sols[t], label=lbl, color=color, linestyle=ls, linewidth=lw)
+            style = ':' # 强制用点线
+            linewidth = 2.0
+            label = f't={t} (Initial)'
+        
+        plt.plot(x, sols[t], 
+                 label=label, 
+                 color='black',       # 统一黑色
+                 linestyle=style,     # 不同线型
+                 linewidth=linewidth)
     
-    plt.xlabel("x")
-    plt.ylabel("u(x,t)")
+    plt.xlabel("x", fontsize=12)
+    plt.ylabel("u(x,t)", fontsize=12)
     plt.xlim([-20, 40])
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    plt.legend(fontsize=11)
+    
+    # 使用灰色网格，避免干扰
+    plt.grid(True, linestyle=':', alpha=0.6, color='gray')
     
     # 保存图片
     save_dir = os.path.join(os.getcwd(), 'latex', "figures")
@@ -200,7 +214,6 @@ if __name__ == "__main__":
     # (b) 题: 验证精确解误差
     # ------------------------------------
     # 初值即为 exact_solution_b(x, 0)
-    # 我们用 lambda 包装一下只传 x
     ic_b = lambda x: exact_solution_b(x, 0)
     
     run_fisher_solver(
@@ -216,9 +229,9 @@ if __name__ == "__main__":
     # ------------------------------------
     run_fisher_solver(
         initial_func=ic_case_c1,
-        exact_func=None, # 无精确解，不算误差
+        exact_func=None, 
         task_name="c1",
-        T_max=10.0,      # 观察久一点
+        T_max=10.0,      
         plot_times=[0, 2, 4, 6, 8, 10]
     )
 
